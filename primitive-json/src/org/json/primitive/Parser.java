@@ -1,0 +1,634 @@
+//------------------------------------------------------------------------------
+//Copyright 2014 Lukasz Bownik
+//
+//Licensed under the Apache License, Version 2.0 (the "License");
+//you may not use this file except in compliance with the License.
+//You may obtain a copy of the License at
+//
+//    http://www.apache.org/licenses/LICENSE-2.0
+//
+//Unless required by applicable law or agreed to in writing, software
+//distributed under the License is distributed on an "AS IS" BASIS,
+//WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//See the License for the specific language governing permissions and
+//limitations under the License.
+//------------------------------------------------------------------------------
+package org.json.primitive;
+
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Hashtable;
+import java.util.Vector;
+
+/*******************************************************************************
+ * @author lukasz.bownik@gmail.com
+ ******************************************************************************/
+public final class Parser {
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   public Parser(final int initialBufferSize) {
+
+      this.buffer = new char[initialBufferSize];
+      this.bufferSize = this.buffer.length;
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   public Object parse(final Reader reader) throws IOException {
+
+      this.reader = reader;
+      try {
+         this.currentChar = this.reader.read();
+         this.position = 0;
+         return parseValue();
+      } finally {
+         this.reader = null;
+      }
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   public Object parse(final String str) throws IOException {
+
+      return parse(new StringReader(str));
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private Object parseValue() throws IOException {
+
+      switch (this.currentChar) {
+         case '{':
+            return parseObject();
+         case '[':
+            return parseArray();
+         case 't':
+            return parseTrue();
+         case 'f':
+            return parseFalse();
+         case 'n':
+            return parseNull();
+         case '-':
+         case '1':
+         case '2':
+         case '3':
+         case '4':
+         case '5':
+         case '6':
+         case '7':
+         case '8':
+         case '9':
+         case '0':
+            return parseNumber();
+         case '"':
+            return parseString();
+         case -1:
+            throw new EOFException();
+         default:
+            throwUnexpected();
+            return null;
+      }
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private Boolean parseTrue() throws IOException {
+
+      this.currentChar = this.reader.read();
+      ++this.position;
+      if (this.currentChar == -1) {
+         throw new EOFException();
+      }
+      if (this.currentChar != 'r') {
+         throwUnexpected();
+      }
+      this.currentChar = this.reader.read();
+      ++this.position;
+      if (this.currentChar == -1) {
+         throw new EOFException();
+      }
+      if (this.currentChar != 'u') {
+         throwUnexpected();
+      }
+      this.currentChar = this.reader.read();
+      ++this.position;
+      if (this.currentChar == -1) {
+         throw new EOFException();
+      }
+      if (this.currentChar != 'e') {
+         throwUnexpected();
+      }
+      this.currentChar = this.reader.read();
+      ++this.position;
+      if (!isEndOfValue(this.currentChar)) {
+         throwUnexpected();
+      }
+      return Boolean.TRUE;
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private Boolean parseFalse() throws IOException {
+
+      this.currentChar = this.reader.read();
+      ++this.position;
+      if (this.currentChar == -1) {
+         throw new EOFException();
+      }
+      if (this.currentChar != 'a') {
+         throwUnexpected();
+      }
+      this.currentChar = this.reader.read();
+      ++this.position;
+      if (this.currentChar == -1) {
+         throw new EOFException();
+      }
+      if (this.currentChar != 'l') {
+         throwUnexpected();
+      }
+      this.currentChar = this.reader.read();
+      ++this.position;
+      if (this.currentChar == -1) {
+         throw new EOFException();
+      }
+      if (this.currentChar != 's') {
+         throwUnexpected();
+      }
+      this.currentChar = this.reader.read();
+      ++this.position;
+      if (this.currentChar == -1) {
+         throw new EOFException();
+      }
+      if (this.currentChar != 'e') {
+         throwUnexpected();
+      }
+      this.currentChar = this.reader.read();
+      ++this.position;
+      if (!isEndOfValue(this.currentChar)) {
+         throwUnexpected();
+      }
+      return Boolean.FALSE;
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private Object parseNull() throws IOException {
+
+      this.currentChar = this.reader.read();
+      ++this.position;
+      if (this.currentChar == -1) {
+         throw new EOFException();
+      }
+      if (this.currentChar != 'u') {
+         throwUnexpected();
+      }
+      this.currentChar = this.reader.read();
+      ++this.position;
+      if (this.currentChar == -1) {
+         throw new EOFException();
+      }
+      if (this.currentChar != 'l') {
+         throwUnexpected();
+      }
+      this.currentChar = this.reader.read();
+      ++this.position;
+      if (this.currentChar == -1) {
+         throw new EOFException();
+      }
+      if (this.currentChar != 'l') {
+         throwUnexpected();
+      }
+      this.currentChar = this.reader.read();
+      ++this.position;
+      if (!isEndOfValue(this.currentChar)) {
+         throwUnexpected();
+      }
+      return Null.value;
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private Hashtable parseObject() throws IOException {
+
+      final Hashtable result = new Hashtable();
+      this.currentChar = this.reader.read();
+      ++this.position;
+      consumeWhitespace();
+      if (this.currentChar == -1) {
+         throw new EOFException();
+      }
+      if (this.currentChar != '}') {
+         loop:
+         for (;;) {
+            if (this.currentChar != '"') {
+               throwUnexpected();
+            }
+            final String key = parseString();
+            consumeWhitespace();
+            if (this.currentChar == -1) {
+               throw new EOFException();
+            }
+            if (this.currentChar != ':') {
+               throwUnexpected();
+            }
+            this.currentChar = this.reader.read();
+            ++this.position;
+            consumeWhitespace();
+            if (this.currentChar == -1) {
+               throw new EOFException();
+            }
+            result.put(key, parseValue());
+            consumeWhitespace();
+            switch (this.currentChar) {
+               case -1:
+                  throw new EOFException();
+               case ',':
+                  this.currentChar = this.reader.read();
+                  ++this.position;
+                  consumeWhitespace();
+                  if (this.currentChar == -1) {
+                     throw new EOFException();
+                  }
+                  break;
+               case '}':
+                  break loop;
+               default:
+                  throwUnexpected();
+            }
+         }
+      }
+      this.currentChar = this.reader.read();
+      ++this.position;
+      return result;
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private Vector parseArray() throws IOException {
+
+      final Vector result = new Vector();
+      this.currentChar = this.reader.read();
+      ++this.position;
+      consumeWhitespace();
+      if (this.currentChar == -1) {
+         throw new EOFException();
+      }
+      if (this.currentChar != ']') {
+         loop:
+         for (;;) {
+            result.addElement(parseValue());
+            consumeWhitespace();
+            switch (this.currentChar) {
+               case -1:
+                  throw new EOFException();
+               case ',':
+                  this.currentChar = this.reader.read();
+                  ++this.position;
+                  consumeWhitespace();
+                  break;
+               case ']':
+                  break loop;
+               default:
+                  throwUnexpected();
+            }
+         }
+      }
+      this.currentChar = this.reader.read();
+      ++this.position;
+      return result;
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private Object parseNumber() throws IOException {
+
+      int signum = 1;
+      long integer = 0;
+      if (this.currentChar == '-') {
+         signum = -1;
+         this.currentChar = this.reader.read();
+         ++this.position;
+      }
+      if (this.currentChar == -1) {
+         throw new EOFException();
+      }
+      while (isDigit(this.currentChar)) {
+         integer = 10 * integer + (this.currentChar - '0');
+         this.currentChar = this.reader.read();
+         ++this.position;
+      }
+      if (isEndOfValue(this.currentChar)) {
+         // integer - no exponent
+         return new Long(integer * signum);
+      }
+      if (this.currentChar == '.') {
+         // floating point
+         this.currentChar = this.reader.read();
+         ++this.position;
+         if (this.currentChar == -1) {
+            throw new EOFException();
+         }
+         if (!isDigit(this.currentChar)) {
+            throwUnexpected();
+         }
+         double decimal = 0.1 * (this.currentChar - '0');
+         double factor = 0.01;
+         this.currentChar = this.reader.read();
+         ++this.position;
+         while (isDigit(this.currentChar)) {
+            decimal += factor * (this.currentChar - '0');
+            factor /= 10;
+            this.currentChar = this.reader.read();
+            ++this.position;
+         }
+         if (this.currentChar == 'e' | this.currentChar == 'E') {
+            // floating point with exponent
+            this.currentChar = this.reader.read();
+            ++this.position;
+            int expSignum = 1;
+            if (this.currentChar == '-') {
+               expSignum = -1;
+               this.currentChar = this.reader.read();
+               ++this.position;
+            }
+            if (this.currentChar == -1) {
+               throw new EOFException();
+            }
+            if (!isDigit(this.currentChar)) {
+               throwUnexpected();
+            }
+            long exponent = (this.currentChar - '0');
+            this.currentChar = this.reader.read();
+            ++this.position;
+            while (isDigit(this.currentChar)) {
+               exponent = 10 * exponent + (this.currentChar - '0');
+               this.currentChar = this.reader.read();
+               ++this.position;
+            }
+            if (isEndOfValue(this.currentChar)) {
+               if (expSignum > 0) {
+                  return new Double((integer + decimal) * signum * pow(exponent));
+               } else {
+                  return new Double((integer + decimal) * signum / pow(exponent));
+               }
+            }
+            throwUnexpected();
+         } else {
+            // floating point without exponent
+            if (isEndOfValue(this.currentChar)) {
+               return new Double((integer + decimal) * signum);
+            }
+            throwUnexpected();
+         }
+      }
+      if (this.currentChar == 'e' | this.currentChar == 'E') {
+         // integer or float with exponent
+         this.currentChar = this.reader.read();
+         ++this.position;
+         int expSignum = 1;
+         if (this.currentChar == '-') {
+            expSignum = -1;
+            this.currentChar = this.reader.read();
+            ++this.position;
+         }
+         if (this.currentChar == -1) {
+            throw new EOFException();
+         }
+         if (!isDigit(this.currentChar)) {
+            throwUnexpected();
+         }
+         long exponent = (this.currentChar - '0');
+         this.currentChar = this.reader.read();
+         ++this.position;
+         while (isDigit(this.currentChar)) {
+            exponent = 10 * exponent + (this.currentChar - '0');
+            this.currentChar = this.reader.read();
+            ++this.position;
+         }
+         if (isEndOfValue(this.currentChar)) {
+            if (expSignum > 0) {
+               return new Long(integer * pow(exponent) * signum);
+            } else {
+               if (exponent == 0) {
+                  return new Long(integer * signum);
+               } else {
+                  return new Double(integer * 1.0 / pow(exponent) * signum);
+               }
+            }
+         }
+         throwUnexpected();
+      }
+      throwUnexpected();
+      return null;
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private static long pow(long exp) {
+
+      long result = 1;
+      int base = 10;
+      while (exp != 0) {
+         if ((exp & 1) != 0) {
+            result *= base;
+         }
+         exp >>= 1;
+         base *= base;
+      }
+      return result;
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private String parseString() throws IOException {
+
+      this.bufIndex = 0;
+      boolean escaped = false;
+      loop:
+      for (;;) {
+         this.currentChar = this.reader.read();
+         ++this.position;
+         switch (this.currentChar) {
+            case -1:
+               throw new EOFException();
+            case '\\':
+               if (escaped) {
+                  append('\"');
+                  escaped = false;
+               } else {
+                  escaped = true;
+               }
+               break;
+            case '"':
+               if (escaped) {
+                  append('\"');
+                  escaped = false;
+               } else {
+                  break loop;
+               }
+               break;
+            case '/':
+               append('/');
+               escaped = false;
+               break;
+            case 'b':
+               if (escaped) {
+                  append('\b');
+                  escaped = false;
+               } else {
+                  append('b');
+               }
+               break;
+            case 'f':
+               if (escaped) {
+                  append('\f');
+                  escaped = false;
+               } else {
+                  append('f');
+               }
+               break;
+            case 'n':
+               if (escaped) {
+                  append('\n');
+                  escaped = false;
+               } else {
+                  append('n');
+               }
+               break;
+            case 'r':
+               if (escaped) {
+                  append('\r');
+                  escaped = false;
+               } else {
+                  append('r');
+               }
+               break;
+            case 't':
+               if (escaped) {
+                  append('\t');
+                  escaped = false;
+               } else {
+                  append('t');
+               }
+               break;
+            case 'u':
+               if (escaped) {
+                  int chr = 0;
+                  for (int i = 0; i < 4; ++i) {
+                     chr <<= 4;
+                     this.currentChar = this.reader.read();
+                     ++this.position;
+                     if (this.currentChar >= '0' & this.currentChar <= '9') {
+                        chr += (this.currentChar - '0');
+                     } else if (this.currentChar >= 'A' & this.currentChar <= 'F') {
+                        chr += (10 + (this.currentChar - 'A'));
+                     } else if (this.currentChar >= 'a' & this.currentChar <= 'f') {
+                        chr += (10 + (this.currentChar - 'a'));
+                     } else if (this.currentChar == -1) {
+                        throw new EOFException();
+                     } else {
+                        throw new UnexpectedCharacterException(this.position,
+                                (char) this.currentChar);
+                     }
+                  }
+                  append((char) chr);
+                  escaped = false;
+               } else {
+                  append('u');
+               }
+               break;
+            default:
+               append((char) this.currentChar);
+               break;
+         }
+      }
+      this.currentChar = this.reader.read();
+      ++this.position;
+      if (!isEndOfValue(this.currentChar)) {
+         throwUnexpected();
+      }
+      return new String(this.buffer, 0, this.bufIndex);
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private void throwUnexpected() throws IOException {
+
+      throw new UnexpectedCharacterException(this.position, (char) this.currentChar);
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private static boolean isDigit(final int chr) {
+
+      return chr >= '0' & chr <= '9';
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private static boolean isWhitespace(final int chr) {
+
+      return chr == ' ' | chr == '\t' | chr == '\n' | chr == '\r';
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private void consumeWhitespace() throws IOException {
+
+      while (isWhitespace(this.currentChar)) {
+         this.currentChar = this.reader.read();
+         ++this.position;
+      }
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private static boolean isEndOfValue(final int chr) {
+
+      return chr == -1 | chr == ' ' | chr == '\t' | chr == '\n' | chr == '\r'
+              | chr == ']' | chr == '}' | chr == ',' | chr == ':';
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private void append(final char chr) {
+
+      if (this.bufIndex == this.bufferSize) {
+         this.bufferSize *= 2;
+         final char[] newBuffer = new char[this.bufferSize];
+         System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
+         this.buffer = newBuffer;
+      }
+      this.buffer[this.bufIndex++] = chr;
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private Reader reader;
+   private int currentChar = -1;
+   private int position = 0;
+   private char[] buffer;
+   private int bufferSize;
+   private int bufIndex = 0;
+}
