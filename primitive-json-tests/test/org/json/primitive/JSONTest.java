@@ -15,6 +15,10 @@
 //------------------------------------------------------------------------------
 package org.json.primitive;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
 import junit.framework.TestCase;
@@ -71,4 +75,25 @@ public class JSONTest extends TestCase {
       object.put("a", Null.value);
       assertEquals("{\"a\":null}", JSON.toString(object));
    }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   public void testParseFormURL() throws Exception {
+
+      final HttpURLConnection c = 
+              (HttpURLConnection)new URL("http://headers.jsontest.com/").openConnection();
+      c.setDoInput(true);
+      c.setRequestMethod("GET");
+      c.connect();
+      final Reader r = new InputStreamReader(c.getInputStream(), "UTF-8");
+      try {
+         final Hashtable o = (Hashtable)JSON.parse(r);
+         System.out.println(JSON.toString(o));
+      } finally {
+         r.close();
+      }
+      
+   }
+
 }
