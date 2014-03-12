@@ -44,7 +44,17 @@ public final class Parser {
       try {
          this.currentChar = this.reader.read();
          this.position = 0;
-         return parseValue();
+         switch (this.currentChar) {
+            case '{':
+               return parseObject();
+            case '[':
+               return parseArray();
+            case -1:
+               throw new EOFException();
+            default:
+               throwUnexpected();
+               return null;
+         }
       } finally {
          this.reader = null;
       }
@@ -64,10 +74,20 @@ public final class Parser {
    private Object parseValue() throws IOException {
 
       switch (this.currentChar) {
-         case '{':
-            return parseObject();
-         case '[':
-            return parseArray();
+         case '{': {
+            final Object o = parseObject();
+            this.currentChar = this.reader.read();
+            ++this.position;
+            consumeWhitespace();
+            return o;
+         }
+         case '[': {
+            final Object o = parseArray();
+            this.currentChar = this.reader.read();
+            ++this.position;
+            consumeWhitespace();
+            return o;
+         }
          case 't':
             return parseTrue();
          case 'f':
@@ -267,8 +287,6 @@ public final class Parser {
             }
          }
       }
-      this.currentChar = this.reader.read();
-      ++this.position;
       return result;
    }
 
@@ -304,8 +322,6 @@ public final class Parser {
             }
          }
       }
-      this.currentChar = this.reader.read();
-      ++this.position;
       return result;
    }
 

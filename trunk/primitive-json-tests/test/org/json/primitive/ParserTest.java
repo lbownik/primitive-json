@@ -32,80 +32,146 @@ public class ParserTest extends TestCase {
     ***************************************************************************/
    public void testProperPrimitiveValues() throws Exception {
 
-      //nulll
-      assertTrue(parse("null") == Null.value);
+      Vector v;
+      //null
+      v = (Vector) parse("[null]");
+      assertTrue(v.elementAt(0) == Null.value);
       //true
-      assertTrue(Boolean.TRUE == parse("true"));
+       v = (Vector) parse("[true]");
+      assertTrue(Boolean.TRUE == v.elementAt(0));
       // false
-      assertTrue(Boolean.FALSE == parse("false"));
+       v = (Vector) parse("[false]");
+      assertTrue(Boolean.FALSE == v.elementAt(0));
       //string
-      assertEquals("", parse("\"\""));
-      assertEquals(" \tt\rr\nn\ff", parse("\" \\tt\\rr\\nn\\ff\""));
-      assertEquals("\"\"", parse("\"\\\"\\\"\""));
-      assertEquals("ał \t$-_", parse("\"ał \\t$-_\""));
-      assertEquals("aAbBZ", parse("\"a\\u0041b\\u0042\\u005A\""));
-      assertEquals("{\"aaa\": true, \"b\" : [null, null]}",
-              parse("\"{\\\"aaa\\\": true, \\\"b\\\" : [null, null]}\""));
+       v = (Vector) parse("[\"\"]");
+      assertEquals("", v.elementAt(0));
+       v = (Vector) parse("[\" \\tt\\rr\\nn\\ff\"]");
+      assertEquals(" \tt\rr\nn\ff", v.elementAt(0));
+       v = (Vector) parse("[\"\\\"\\\"\"]");
+      assertEquals("\"\"", v.elementAt(0));
+       v = (Vector) parse("[\"ał \\t$-_\"]");
+      assertEquals("ał \t$-_", v.elementAt(0));
+       v = (Vector) parse("[\"a\\u0041b\\u0042\\u005A\"]");
+      assertEquals("aAbBZ", v.elementAt(0));
+       v = (Vector) parse("[\"{\\\"aaa\\\": true, \\\"b\\\" : [null, null]}\"]");
+      assertEquals("{\"aaa\": true, \"b\" : [null, null]}",v.elementAt(0));
+       v = (Vector) parse(
+               "[\"http://feedburner.google.com/fb/a/mailverify?uri=JavaCodeGeeks&loc=en_US\"]");
       assertEquals("http://feedburner.google.com/fb/a/mailverify?uri=JavaCodeGeeks&loc=en_US",
-              parse("\"http://feedburner.google.com/fb/a/mailverify?uri=JavaCodeGeeks&loc=en_US\""));
+              v.elementAt(0));
       //number
-      assertEquals(new Long(1), parse("1"));
-      assertEquals(new Long(123478900001L), parse("123478900001"));
-      assertEquals(new Long(-123478900001L), parse("-123478900001"));
-      assertEquals(new Long(0), parse("0"));
-      assertEquals(new Long(-0), parse("-0"));
-      assertEquals(new Double(1.0), parse("1.0"));
-      assertEquals(new Double(0.0), parse("0.0"));
-      assertEquals(new Double(-1.0), parse("-1.0"));
-      assertEquals(new Double(-0.0), parse("-0.0"));
-      assertEquals(new Double(123243324.43434), parse("123243324.43434"));
-      assertEquals(new Double(-123243324.43434), parse("-123243324.43434"));
-      assertEquals(new Long(1 * 10), parse("1E1"));
-      assertEquals(new Long(1 * 10), parse("1e1"));
-      assertEquals(new Long(1), parse("1E0"));
-      assertEquals(new Long(1), parse("1E-0"));
-      assertEquals(new Long(1), parse("1e-0"));
-      assertEquals(new Double(0.1), parse("1E-1"));
-      assertEquals(new Double(0.1), parse("1e-1"));
-      assertEquals(new Double(-0.1), parse("-1E-1"));
-      assertEquals(new Double(-0.1), parse("-1e-1"));
-      assertEquals(new Long(120000000000L), parse("12E10"));
-      assertEquals(new Long(120000000000L), parse("12e10"));
-      assertEquals(new Long(-120000000000L), parse("-12E10"));
-      assertEquals(new Long(-120000000000L), parse("-12e10"));
-      assertEquals(new Long(0), parse("0E0"));
-      assertEquals(new Long(0), parse("0e0"));
-      assertEquals(new Long(0), parse("0e-0"));
-      assertEquals(new Long(0), parse("0E-0"));
-      assertEquals(new Long(0), parse("-0E0"));
-      assertEquals(new Long(0), parse("-0e0"));
-      assertEquals(new Long(0), parse("-0e-0"));
-      assertEquals(new Long(0), parse("-0E-0"));
-      assertEquals(new Double(1.0), parse("1.0e0"));
-      assertEquals(new Double(1.0), parse("1.0e-0"));
-      assertEquals(new Double(1.0), parse("1.0E0"));
-      assertEquals(new Double(1.0), parse("1.0E-0"));
-      assertEquals(new Double(0.0), parse("0.0e0"));
-      assertEquals(new Double(0.0), parse("0.0e-0"));
-      assertEquals(new Double(0.0), parse("0.0E0"));
-      assertEquals(new Double(0.0), parse("0.0E-0"));
-      assertEquals(new Double(-1.0), parse("-1.0e0"));
-      assertEquals(new Double(-1.0), parse("-1.0e-0"));
-      assertEquals(new Double(-1.0), parse("-1.0E0"));
-      assertEquals(new Double(-1.0), parse("-1.0E-0"));
-      assertEquals(new Double(-0.0), parse("-0.0e0"));
-      assertEquals(new Double(-0.0), parse("-0.0e-0"));
-      assertEquals(new Double(-0.0), parse("-0.0E0"));
-      assertEquals(new Double(-0.0), parse("-0.0E-0"));
-      assertEquals(new Double(120000000000.0), parse("12.0e10"));
-      assertEquals(new Double(0.0000000012), parse("12.0e-10"));
-      assertEquals(new Double(120000000000.0), parse("12.0E10"));
-      assertEquals(new Double(0.0000000012), parse("12.0E-10"));
-      assertEquals(new Double(-120000000000.0), parse("-12.0e10"));
-      assertEquals(new Double(-0.0000000012), parse("-12.0e-10"));
-      assertEquals(new Double(-120000000000.0), parse("-12.0E10"));
-      assertEquals(new Double(-0.0000000012), parse("-12.0E-10"));
-
+       v = (Vector) parse("[1]");
+      assertEquals(new Long(1), v.elementAt(0));
+       v = (Vector) parse("[123478900001]");
+      assertEquals(new Long(123478900001L), v.elementAt(0));
+       v = (Vector) parse("[-123478900001]");
+      assertEquals(new Long(-123478900001L), v.elementAt(0));
+       v = (Vector) parse("[0]");
+      assertEquals(new Long(0), v.elementAt(0));
+       v = (Vector) parse("[-0]");
+      assertEquals(new Long(-0), v.elementAt(0));
+       v = (Vector) parse("[1.0]");
+      assertEquals(new Double(1.0), v.elementAt(0));
+       v = (Vector) parse("[0.0]");
+      assertEquals(new Double(0.0), v.elementAt(0));
+       v = (Vector) parse("[-1.0]");
+      assertEquals(new Double(-1.0), v.elementAt(0));
+       v = (Vector) parse("[-0.0]");
+      assertEquals(new Double(-0.0), v.elementAt(0));
+       v = (Vector) parse("[123243324.43434]");
+      assertEquals(new Double(123243324.43434), v.elementAt(0));
+       v = (Vector) parse("[-123243324.43434]");
+      assertEquals(new Double(-123243324.43434), v.elementAt(0));
+       v = (Vector) parse("[1E1]");
+      assertEquals(new Long(1 * 10), v.elementAt(0));
+       v = (Vector) parse("[1e1]");
+      assertEquals(new Long(1 * 10), v.elementAt(0));
+       v = (Vector) parse("[1E0]");
+      assertEquals(new Long(1), v.elementAt(0));
+       v = (Vector) parse("[1E-0]");
+      assertEquals(new Long(1), v.elementAt(0));
+       v = (Vector) parse("[1e-0]");
+      assertEquals(new Long(1), v.elementAt(0));
+       v = (Vector) parse("[1E-1]");
+      assertEquals(new Double(0.1), v.elementAt(0));
+       v = (Vector) parse("[1e-1]");
+      assertEquals(new Double(0.1), v.elementAt(0));
+       v = (Vector) parse("[-1E-1]");
+      assertEquals(new Double(-0.1), v.elementAt(0));
+       v = (Vector) parse("[-1e-1]");
+      assertEquals(new Double(-0.1), v.elementAt(0));
+       v = (Vector) parse("[12E10]");
+      assertEquals(new Long(120000000000L), v.elementAt(0));
+       v = (Vector) parse("[12e10]");
+      assertEquals(new Long(120000000000L), v.elementAt(0));
+       v = (Vector) parse("[-12E10]");
+      assertEquals(new Long(-120000000000L), v.elementAt(0));
+       v = (Vector) parse("[-12e10]");
+      assertEquals(new Long(-120000000000L), v.elementAt(0));
+       v = (Vector) parse("[0E0]");
+      assertEquals(new Long(0), v.elementAt(0));
+       v = (Vector) parse("[0e0]");
+      assertEquals(new Long(0), v.elementAt(0));
+       v = (Vector) parse("[0e-0]");
+      assertEquals(new Long(0), v.elementAt(0));
+       v = (Vector) parse("[0E-0]");
+      assertEquals(new Long(0), v.elementAt(0));
+       v = (Vector) parse("[-0E0]");
+      assertEquals(new Long(0), v.elementAt(0));
+       v = (Vector) parse("[-0e0]");
+      assertEquals(new Long(0), v.elementAt(0));
+       v = (Vector) parse("[-0e-0]");
+      assertEquals(new Long(0), v.elementAt(0));
+       v = (Vector) parse("[-0E-0]");
+      assertEquals(new Long(0), v.elementAt(0));
+       v = (Vector) parse("[1.0e0]");
+      assertEquals(new Double(1.0), v.elementAt(0));
+       v = (Vector) parse("[1.0e-0]");
+      assertEquals(new Double(1.0), v.elementAt(0));
+       v = (Vector) parse("[1.0E0]");
+      assertEquals(new Double(1.0), v.elementAt(0));
+       v = (Vector) parse("[1.0E-0]");
+      assertEquals(new Double(1.0), v.elementAt(0));
+       v = (Vector) parse("[0.0e0]");
+      assertEquals(new Double(0.0), v.elementAt(0));
+       v = (Vector) parse("[0.0e-0]");
+      assertEquals(new Double(0.0), v.elementAt(0));
+       v = (Vector) parse("[0.0E0]");
+      assertEquals(new Double(0.0), v.elementAt(0));
+       v = (Vector) parse("[0.0E-0]");
+      assertEquals(new Double(0.0), v.elementAt(0));
+       v = (Vector) parse("[-1.0e0]");
+      assertEquals(new Double(-1.0), v.elementAt(0));
+       v = (Vector) parse("[-1.0e-0]");
+      assertEquals(new Double(-1.0), v.elementAt(0));
+       v = (Vector) parse("[-1.0E0]");
+      assertEquals(new Double(-1.0), v.elementAt(0));
+       v = (Vector) parse("[-1.0E-0]");
+      assertEquals(new Double(-1.0), v.elementAt(0));
+       v = (Vector) parse("[-0.0e0]");
+      assertEquals(new Double(-0.0), v.elementAt(0));
+       v = (Vector) parse("[-0.0e-0]");
+      assertEquals(new Double(-0.0), v.elementAt(0));
+       v = (Vector) parse("[-0.0E0]");
+      assertEquals(new Double(-0.0), v.elementAt(0));
+       v = (Vector) parse("[-0.0E-0]");
+      assertEquals(new Double(-0.0), v.elementAt(0));
+       v = (Vector) parse("[12.0e10]");
+      assertEquals(new Double(120000000000.0), v.elementAt(0));
+       v = (Vector) parse("[12.0e-10]");
+      assertEquals(new Double(0.0000000012), v.elementAt(0));
+       v = (Vector) parse("[12.0E10]");
+      assertEquals(new Double(120000000000.0), v.elementAt(0));
+       v = (Vector) parse("[12.0E-10]");
+      assertEquals(new Double(0.0000000012), v.elementAt(0));
+       v = (Vector) parse("[-12.0e10]");
+      assertEquals(new Double(-120000000000.0), v.elementAt(0));
+       v = (Vector) parse("[-12.0e-10]");
+      assertEquals(new Double(-0.0000000012), v.elementAt(0));
+       v = (Vector) parse("[-12.0E10]");
+      assertEquals(new Double(-120000000000.0), v.elementAt(0));
+       v = (Vector) parse("[-12.0E-10]");
+      assertEquals(new Double(-0.0000000012), v.elementAt(0));
    }
 
    /****************************************************************************
@@ -114,18 +180,18 @@ public class ParserTest extends TestCase {
    public void testErronousPrimitiveValues() throws Exception {
 
       //nulll
-      parseUnexpected("nulL", 'L');
-      parseUnexpected("tru ", ' ');
-      parseUnexpected("falsee", 'e');
+      parseUnexpected("[nulL", 'L');
+      parseUnexpected("[tru ", ' ');
+      parseUnexpected("[falsee", 'e');
       //string
-      parseUnexpected("\"\"#", '#');
+      parseUnexpected("[\"\"#", '#');
       // number
-      parseUnexpected("1x", 'x');
-      parseUnexpected("1. ", ' ');
-      parseUnexpected("1.0e ", ' ');
-      parseUnexpected("1.0d", 'd');
-      parseUnexpected("1.0e2f", 'f');
-      parseUnexpected("1e ", ' ');
+      parseUnexpected("[1x", 'x');
+      parseUnexpected("[1. ", ' ');
+      parseUnexpected("[1.0e ", ' ');
+      parseUnexpected("[1.0d", 'd');
+      parseUnexpected("[1.0e2f", 'f');
+      parseUnexpected("[1e ", ' ');
       assertTrue(true);
    }
 
@@ -135,17 +201,17 @@ public class ParserTest extends TestCase {
    public void testEOFPrimitiveValues() throws Exception {
 
       //nulll
-      parseEOF("nul");
-      parseEOF("tru");
-      parseEOF("fals");
+      parseEOF("[nul");
+      parseEOF("[tru");
+      parseEOF("[fals");
       //string
-      parseEOF("\"");
+      parseEOF("[\"");
       // number
-      parseEOF("1.");
-      parseEOF("-");
-      parseEOF("1.0e");
-      parseEOF("1.0e-");
-      parseEOF("1e");
+      parseEOF("[1.");
+      parseEOF("[-");
+      parseEOF("[1.0e");
+      parseEOF("[1.0e-");
+      parseEOF("[1e");
       assertTrue(true);
    }
 
