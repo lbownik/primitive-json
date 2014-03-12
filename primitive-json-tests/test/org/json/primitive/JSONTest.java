@@ -15,9 +15,15 @@
 //------------------------------------------------------------------------------
 package org.json.primitive;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.net.HttpURLConnection;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -35,15 +41,8 @@ public class JSONTest extends TestCase {
 
       Vector array;
       Hashtable object;
-      assertEquals("null", JSON.toString(Null.value));
-      assertEquals("\"ala\"", JSON.toString("ala"));
-      assertEquals("true", JSON.toString(Boolean.TRUE));
-      assertEquals("false", JSON.toString(Boolean.FALSE));
-      assertEquals("1", JSON.toString(new Long(1)));
-      assertEquals("1.0", JSON.toString(new Double(1.0)));
       assertEquals("[]", JSON.toString(new Vector()));
       assertEquals("{}", JSON.toString(new Hashtable()));
-      assertEquals("\"\\r\\n\\t\\b\"", JSON.toString("\r\n\t\b"));
 
       array = new Vector();
       array.addElement("ala");
@@ -74,6 +73,8 @@ public class JSONTest extends TestCase {
       object = new Hashtable();
       object.put("a", Null.value);
       assertEquals("{\"a\":null}", JSON.toString(object));
+      object.put("a", "\r\n\t\b");
+      assertEquals("{\"a\":\"\\r\\n\\t\\b\"}", JSON.toString(object));
    }
 
    /****************************************************************************
@@ -81,19 +82,59 @@ public class JSONTest extends TestCase {
     ***************************************************************************/
    public void testParseFormURL() throws Exception {
 
-      final HttpURLConnection c = 
-              (HttpURLConnection)new URL("http://headers.jsontest.com/").openConnection();
+      final HttpURLConnection c
+              = (HttpURLConnection) new URL("http://headers.jsontest.com/").openConnection();
       c.setDoInput(true);
       c.setRequestMethod("GET");
       c.connect();
       final Reader r = new InputStreamReader(c.getInputStream(), "UTF-8");
       try {
-         final Hashtable o = (Hashtable)JSON.parse(r);
+         final Hashtable o = (Hashtable) JSON.parse(r);
          System.out.println(JSON.toString(o));
       } finally {
          r.close();
       }
-      
-   }
 
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   public void testParseFormRawSocket() throws Exception {
+
+      new Thread() {
+
+         @Override
+         public void run() {
+            try {
+            final ServerSocket ss = new ServerSocket(60400);
+            final Socket s = ss.accept();
+            final Writer out = new OutputStreamWriter(s.getOutputStream(), "UTF-8");
+            final InputStream in = s.getInputStream();
+            out.write("{\"ip\": \"8.8.8.8\"}");
+            out.flush();
+            in.read();
+            out.write("{\"ip\": \"8.8.8.8\"}");
+            out.flush();
+            out.close();
+            in.close();
+            } catch(final Exception e) {
+               throw new RuntimeException(e);
+            }
+         }
+         
+      }.start();
+      
+      final Socket s = new Socket("localhost", 60400);
+      final Reader in = new InputStreamReader(s.getInputStream(), "UTF-8");
+      final OutputStream out = s.getOutputStream();
+      Hashtable o = null;
+      System.out.println("connected");
+      o = (Hashtable) JSON.parse(in);
+      System.out.println(JSON.toString(o));
+      out.write(1);
+      o = (Hashtable) JSON.parse(in);
+      System.out.println(JSON.toString(o));
+      in.close();
+      out.close();
+   }
 }

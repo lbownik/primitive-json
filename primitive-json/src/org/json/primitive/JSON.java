@@ -60,11 +60,27 @@ public class JSON {
 
       return new Parser(16).parse(s);
    }
-
    /****************************************************************************
     * Encode an object into JSON text and write it to out.
     ***************************************************************************/
-   public static void write(final Object value, final Writer out)
+   public static void write(final Object value, final Writer out) 
+           throws IOException {
+      
+      if (value instanceof Hashtable) {
+         write((Hashtable) value, out);
+         return;
+      }
+      if (value instanceof Vector) {
+         write((Vector) value, out);
+         return;
+      }
+      throw new IllegalArgumentException("Only HashTable or Vactor accepted");
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private static void writeValue(final Object value, final Writer out)
            throws IOException {
 
       if (value == null) {
@@ -113,7 +129,7 @@ public class JSON {
 
       try {
          final Writer wr = new StringWriter(16);
-         write(value, wr);
+         writeValue(value, wr);
          return wr.toString();
       } catch (final IOException e) {
          // never happens
@@ -128,7 +144,7 @@ public class JSON {
            throws IOException {
 
       final ByteArrayOutputStream out = new ByteArrayOutputStream(1000);
-      JSON.write(value, new OutputStreamWriter(out, encoding));
+      JSON.writeValue(value, new OutputStreamWriter(out, encoding));
       return out.toByteArray();
    }
 
@@ -198,10 +214,10 @@ public class JSON {
          final int lastIndex = v.size() - 1;
          if (lastIndex > -1) {
             for (int i = 0; i < lastIndex; ++i) {
-               write(v.elementAt(i), out);
+               writeValue(v.elementAt(i), out);
                out.write(',');
             }
-            write(v.elementAt(lastIndex), out);
+            writeValue(v.elementAt(lastIndex), out);
          }
          out.write(']');
       } else {
@@ -239,7 +255,7 @@ public class JSON {
             writeEscaped(String.valueOf(key), out);
             out.write('\"');
             out.write(':');
-            write(map.get(key), out);
+            writeValue(map.get(key), out);
          }
          while (kenum.hasMoreElements()) {
             out.write(',');
@@ -248,7 +264,7 @@ public class JSON {
             writeEscaped(String.valueOf(key), out);
             out.write('\"');
             out.write(':');
-            write(map.get(key), out);
+            writeValue(map.get(key), out);
          }
          out.write('}');
       } else {
