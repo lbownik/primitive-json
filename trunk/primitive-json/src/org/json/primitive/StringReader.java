@@ -32,14 +32,13 @@ final class StringReader extends Reader {
 
       this.s = s;
       this.length = s.length();
-      
    }
 
    /****************************************************************************
     * 
     ***************************************************************************/
    public int read() throws IOException {
-      
+
       return this.pos < this.length ? this.s.charAt(this.pos++) : -1;
    }
 

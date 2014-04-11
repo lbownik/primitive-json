@@ -31,41 +31,51 @@ import java.util.Vector;
 public class JSON {
 
    /****************************************************************************
-    * Parse JSON text into java object from the input source
-    * (invokes new Parser(16).parse(in)).
-    * @see Parser
-    * 
-    * @param in reader
-    * @return Instance of the following:
-    * 	java.util.Hashtable,
-    * 	java.util.Vector,
-    * 	java.lang.String,
-    * 	java.lang.Long,
-    * 	java.lang.Double,   
-    * 	java.lang.Boolean,
-    * 	org.json.primitive.Null.value (caouse Hashtable does not support null values).
-    * 
-    * @throws IOException
-    * @throws UnexpectedCharacterException
+    * Parse JSON object (invokes new Parser(16).parse(reader)).
+    * @param reader a reader object.
+    * @return java.util.Hashtable if the reader contained JSON object or 
+    *    java.util.Vector if the reader contained JSON array.
+    * @throws IOException if input error occurs.
+    * @throws org.json.primitive.UnexpectedCharacterException if malformed JSON is
+    * encountered.
+    * @throws NullPointerException if reader is null.
     ***************************************************************************/
-   public static Object parse(final Reader in) throws IOException {
+   public static Object parse(final Reader reader) throws IOException {
 
-      return new Parser(16).parse(in);
+      return new Parser(16).parse(reader);
    }
 
    /****************************************************************************
-    * 
+    * Parse JSON object (invokes new Parser(16).parse(s)).
+    * @param s a JSON string.
+    * @return java.util.Hashtable if the string containes JSON object or 
+    *    java.util.Vector if the string containes JSON array.
+    * @throws IOException if input error occurs.
+    * @throws org.json.primitive.UnexpectedCharacterException if malformed JSON is
+    * encountered.
+    * @throws NullPointerException if reader is null.
     ***************************************************************************/
    public static Object parse(final String s) throws IOException {
 
       return new Parser(16).parse(s);
    }
+
    /****************************************************************************
     * Encode an object into JSON text and write it to out.
+    * 
+    * @param value JSON object.
+    * @param out writer object.
+    * @throws IOException if woutput error occurs.
+    * @throws NullPointerException if value or out == null.
+    * @throws IllegalArgumentException if value is not Hashtable or Vector.
     ***************************************************************************/
-   public static void write(final Object value, final Writer out) 
+   public static void write(final Object value, final Writer out)
            throws IOException {
-      
+
+      if (value == null) {
+         throw new NullPointerException("value");
+      }
+
       if (value instanceof Hashtable) {
          write((Hashtable) value, out);
          return;
@@ -74,7 +84,142 @@ public class JSON {
          write((Vector) value, out);
          return;
       }
-      throw new IllegalArgumentException("Only HashTable or Vactor accepted");
+      throw new IllegalArgumentException("Only Hashtable or Vector accepted");
+   }
+
+   /****************************************************************************
+    * Encode an object into JSON text.
+    * 
+    * @param value JSON object.
+    * @return JSON string.
+    * @throws NullPointerException if value == null.
+    * @throws IllegalArgumentException if value is not Hashtable or Vector.
+    ***************************************************************************/
+   public static String toString(final Object value) {
+
+      try {
+         final Writer wr = new StringWriter(16);
+         write(value, wr);
+         return wr.toString();
+      } catch (final IOException e) {
+         throw new RuntimeException(e.getMessage()); // never happens
+      }
+   }
+
+   /****************************************************************************
+    * Encode an object into JSON text and return as array of bytes.
+    * 
+    * @param value JSON object.
+    * @param charsetName character set name (eg. "UTF-8").
+    * @return array of bytes containing JSON text.
+    * @throws NullPointerException if value or charsetName == null.
+    * @throws IllegalArgumentException if value is not Hashtable or Vector.
+    * @throws RuntimeException if charsetName does not identify character set.
+    ***************************************************************************/
+   public static byte[] toByteArray(final Object value, final String charsetName) {
+      try {
+         final ByteArrayOutputStream out = new ByteArrayOutputStream(1000);
+         write(value, new OutputStreamWriter(out, charsetName));
+         return out.toByteArray();
+      } catch (final IOException e) {
+         throw new RuntimeException(e.getMessage()); // never happens
+      }
+   }
+
+   /****************************************************************************
+    * Encode an Vector into JSON text and write it to out.
+    * 
+    * @param value vector.
+    * @param out writer object.
+    * @throws IOException if woutput error occurs.
+    * @throws NullPointerException if value or out == null.
+    ***************************************************************************/
+   public static void write(final Vector value, final Writer out)
+           throws IOException {
+
+      if (value == null) {
+         throw new NullPointerException("value");
+      }
+      out.write('[');
+      final int lastIndex = value.size() - 1;
+      if (lastIndex > -1) {
+         for (int i = 0; i < lastIndex; ++i) {
+            writeValue(value.elementAt(i), out);
+            out.write(',');
+         }
+         writeValue(value.elementAt(lastIndex), out);
+      }
+      out.write(']');
+   }
+
+   /****************************************************************************
+    * Encode an Vector into JSON text.
+    * 
+    * @param value vector.
+    * @throws NullPointerException if value == null.
+    ***************************************************************************/
+   public static String toString(final Vector value) {
+
+      try {
+         final Writer wr = new StringWriter(16);
+         write(value, wr);
+         return wr.toString();
+      } catch (final IOException e) {
+         throw new RuntimeException(e.getMessage()); // never happens
+      }
+   }
+
+   /****************************************************************************
+    * Encode a Hashtable into JSON text and write it to out.
+    * 
+    * @param value hashtable.
+    * @param out writer object.
+    * @throws IOException if woutput error occurs.
+    * @throws NullPointerException if value or out == null.
+    ***************************************************************************/
+   public static void write(final Hashtable value, final Writer out)
+           throws IOException {
+
+      if (value == null) {
+         throw new NullPointerException("value");
+      }
+      out.write('{');
+      final Enumeration kenum = value.keys();
+      if (kenum.hasMoreElements()) {
+         final Object key = kenum.nextElement();
+         out.write('\"');
+         writeEscaped(String.valueOf(key), out);
+         out.write('\"');
+         out.write(':');
+         writeValue(value.get(key), out);
+      }
+      while (kenum.hasMoreElements()) {
+         out.write(',');
+         final Object key = kenum.nextElement();
+         out.write('\"');
+         writeEscaped(String.valueOf(key), out);
+         out.write('\"');
+         out.write(':');
+         writeValue(value.get(key), out);
+      }
+      out.write('}');
+   }
+
+   /****************************************************************************
+    * Encode a Hashtable into JSON text.
+    * 
+    * @param value hashtable.
+    * @throws NullPointerException if value == null.
+    ***************************************************************************/
+   public static String toString(final Hashtable value) {
+
+      try {
+         final Writer wr = new StringWriter(16);
+         write(value, wr);
+         return wr.toString();
+      } catch (final IOException e) {
+         throw new RuntimeException(e.getMessage()); // never happens
+      }
    }
 
    /****************************************************************************
@@ -120,32 +265,6 @@ public class JSON {
          return;
       }
       out.write(value.toString());
-   }
-
-   /****************************************************************************
-    * Convert an object to JSON text.
-    ***************************************************************************/
-   public static String toString(final Object value) {
-
-      try {
-         final Writer wr = new StringWriter(16);
-         writeValue(value, wr);
-         return wr.toString();
-      } catch (final IOException e) {
-         // never happens
-         throw new RuntimeException(e.getMessage());
-      }
-   }
-
-   /****************************************************************************
-    *
-    ***************************************************************************/
-   public static byte[] toByteArray(final Object value, final String encoding)
-           throws IOException {
-
-      final ByteArrayOutputStream out = new ByteArrayOutputStream(1000);
-      JSON.writeValue(value, new OutputStreamWriter(out, encoding));
-      return out.toByteArray();
    }
 
    /****************************************************************************
@@ -204,90 +323,9 @@ public class JSON {
    }
 
    /****************************************************************************
-    * Encode a list into JSON text and write it to out. 
-    ***************************************************************************/
-   public static void write(final Vector v, final Writer out)
-           throws IOException {
-
-      if (v != null) {
-         out.write('[');
-         final int lastIndex = v.size() - 1;
-         if (lastIndex > -1) {
-            for (int i = 0; i < lastIndex; ++i) {
-               writeValue(v.elementAt(i), out);
-               out.write(',');
-            }
-            writeValue(v.elementAt(lastIndex), out);
-         }
-         out.write(']');
-      } else {
-         out.write("null");
-      }
-   }
-
-   /****************************************************************************
-    * Convert a list to JSON text. The result is a JSON array. 
-    ***************************************************************************/
-   public static String toString(final Vector v) {
-
-      try {
-         final Writer wr = new StringWriter(16);
-         write(v, wr);
-         return wr.toString();
-      } catch (final IOException e) {
-         // never happens
-         throw new RuntimeException(e.getMessage());
-      }
-   }
-
-   /****************************************************************************
-    * Encode a map into JSON text and write it to out.
-    ***************************************************************************/
-   public static void write(final Hashtable map, final Writer out)
-           throws IOException {
-
-      if (map != null) {
-         out.write('{');
-         final Enumeration kenum = map.keys();
-         if (kenum.hasMoreElements()) {
-            final Object key = kenum.nextElement();
-            out.write('\"');
-            writeEscaped(String.valueOf(key), out);
-            out.write('\"');
-            out.write(':');
-            writeValue(map.get(key), out);
-         }
-         while (kenum.hasMoreElements()) {
-            out.write(',');
-            final Object key = kenum.nextElement();
-            out.write('\"');
-            writeEscaped(String.valueOf(key), out);
-            out.write('\"');
-            out.write(':');
-            writeValue(map.get(key), out);
-         }
-         out.write('}');
-      } else {
-         out.write("null");
-      }
-   }
-
-   /****************************************************************************
-    * Convert a map to JSON text. The result is a JSON object. 
-    ***************************************************************************/
-   public static String toString(final Hashtable map) {
-
-      try {
-         final Writer wr = new StringWriter(16);
-         write(map, wr);
-         return wr.toString();
-      } catch (final IOException e) {
-         // never happens
-         throw new RuntimeException(e.getMessage());
-      }
-   }
-
-   /****************************************************************************
     * 
     ***************************************************************************/
+   private JSON() {
+
+   }
 }
