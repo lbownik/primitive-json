@@ -80,6 +80,31 @@ public class JSONTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   public void testToByteArray() throws Exception {
+
+      try {
+         JSON.toByteArray(new Hashtable(), null);
+         fail();
+      } catch (final NullPointerException e) {
+         assertTrue(true);
+      }
+      try {
+         JSON.toByteArray(new Hashtable(), "");
+         fail();
+      } catch (final RuntimeException e) {
+         assertTrue(true);
+      }
+      try {
+         JSON.toByteArray(new Hashtable(), "klklk");
+         fail();
+      } catch (final RuntimeException e) {
+         assertTrue(true);
+      }
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
    public void testParseFormURL() throws Exception {
 
       final HttpURLConnection c
@@ -96,6 +121,7 @@ public class JSONTest extends TestCase {
       }
 
    }
+
    /****************************************************************************
     * 
     ***************************************************************************/
@@ -106,24 +132,24 @@ public class JSONTest extends TestCase {
          @Override
          public void run() {
             try {
-            final ServerSocket ss = new ServerSocket(60400);
-            final Socket s = ss.accept();
-            final Writer out = new OutputStreamWriter(s.getOutputStream(), "UTF-8");
-            final InputStream in = s.getInputStream();
-            out.write("{\"ip\": \"8.8.8.8\"}");
-            out.flush();
-            in.read();
-            out.write("{\"ip\": \"8.8.8.8\"}");
-            out.flush();
-            out.close();
-            in.close();
-            } catch(final Exception e) {
+               final ServerSocket ss = new ServerSocket(60400);
+               final Socket s = ss.accept();
+               final Writer out = new OutputStreamWriter(s.getOutputStream(), "UTF-8");
+               final InputStream in = s.getInputStream();
+               out.write("{\"ip\": \"8.8.8.8\"}");
+               out.flush();
+               in.read();
+               out.write("{\"ip\": \"8.8.8.8\"}");
+               out.flush();
+               out.close();
+               in.close();
+            } catch (final Exception e) {
                throw new RuntimeException(e);
             }
          }
-         
+
       }.start();
-      
+
       final Socket s = new Socket("localhost", 60400);
       final Reader in = new InputStreamReader(s.getInputStream(), "UTF-8");
       final OutputStream out = s.getOutputStream();

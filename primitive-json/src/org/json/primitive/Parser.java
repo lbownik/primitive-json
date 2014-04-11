@@ -22,21 +22,37 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /*******************************************************************************
+ * JSON parser.
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
 public final class Parser {
 
    /****************************************************************************
-    * 
+    * Creates a new parser.
+    * @param initialBufferSize initial internal buffer size for string values. 
+    * Setting this parameter to a predicted maximum string value length helps 
+    * avoiding beffer realocations while parsing. If in doubt, use 15. 
+    * This paramater exists only for performance optimization purposes.
+    * @throws java.lang.IllegalArgumentException if initialBufferSize <= 0.
     ***************************************************************************/
    public Parser(final int initialBufferSize) {
 
+      if (initialBufferSize <= 0) {
+         throw new IllegalArgumentException("initialBufferSize <= 0");
+      }
       this.buffer = new char[initialBufferSize];
       this.bufferSize = this.buffer.length;
    }
 
    /****************************************************************************
-    * 
+    * Parse JSON object.
+    * @param reader a reader object.
+    * @return java.util.Hashtable if the reader contained JSON object or 
+    *    java.util.Vector if the reader contained JSON array.
+    * @throws IOException if input error occurs.
+    * @throws org.json.primitive.UnexpectedCharacterException if malformed JSON is
+    * encountered.
+    * @throws NullPointerException if reader is null.
     ***************************************************************************/
    public Object parse(final Reader reader) throws IOException {
 
@@ -61,7 +77,14 @@ public final class Parser {
    }
 
    /****************************************************************************
-    * 
+    * Parse JSON object.
+    * @param str a JSON string.
+    * @return java.util.Hashtable if the string containes JSON object or 
+    *    java.util.Vector if the string containes JSON array.
+    * @throws IOException if input error occurs.
+    * @throws org.json.primitive.UnexpectedCharacterException if malformed JSON is
+    * encountered.
+    * @throws NullPointerException if reader is null.
     ***************************************************************************/
    public Object parse(final String str) throws IOException {
 

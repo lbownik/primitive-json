@@ -18,14 +18,15 @@ package org.json.primitive;
 import java.io.IOException;
 
 /*******************************************************************************
+ * An exception thrown when parser encounters malformed JSON syntax.
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
 public final class UnexpectedCharacterException extends IOException {
 
    /****************************************************************************
     * 
-    * @param position
-    * @param character
+    * @param position posision of unexpected character.
+    * @param character unexpected character value (zero based).
     ***************************************************************************/
    UnexpectedCharacterException(final int position, final char character) {
 
@@ -36,6 +37,8 @@ public final class UnexpectedCharacterException extends IOException {
    /****************************************************************************
     * 
     ***************************************************************************/
+   /** Unexpected character value.*/
    public final char character;
+   /** Position of unexpected character (zero based).*/
    public final int position;
 }
