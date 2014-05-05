@@ -58,8 +58,8 @@ public final class Parser {
 
       this.reader = reader;
       try {
-         this.currentChar = this.reader.read();
-         this.position = 0;
+         this.position = -1;
+         this.currentChar = read();
          switch (this.currentChar) {
             case '{':
                return parseObject();
@@ -99,15 +99,13 @@ public final class Parser {
       switch (this.currentChar) {
          case '{': {
             final Object o = parseObject();
-            this.currentChar = this.reader.read();
-            ++this.position;
+            this.currentChar = read();          
             consumeWhitespace();
             return o;
          }
          case '[': {
             final Object o = parseArray();
-            this.currentChar = this.reader.read();
-            ++this.position;
+            this.currentChar = read();          
             consumeWhitespace();
             return o;
          }
@@ -144,32 +142,28 @@ public final class Parser {
     ***************************************************************************/
    private Boolean parseTrue() throws IOException {
 
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();
       if (this.currentChar == -1) {
          throw new EOFException();
       }
       if (this.currentChar != 'r') {
          throwUnexpected();
       }
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();
       if (this.currentChar == -1) {
          throw new EOFException();
       }
       if (this.currentChar != 'u') {
          throwUnexpected();
       }
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();
       if (this.currentChar == -1) {
          throw new EOFException();
       }
       if (this.currentChar != 'e') {
          throwUnexpected();
       }
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();     
       if (!isEndOfValue(this.currentChar)) {
          throwUnexpected();
       }
@@ -181,40 +175,35 @@ public final class Parser {
     ***************************************************************************/
    private Boolean parseFalse() throws IOException {
 
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();      
       if (this.currentChar == -1) {
          throw new EOFException();
       }
       if (this.currentChar != 'a') {
          throwUnexpected();
       }
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();      
       if (this.currentChar == -1) {
          throw new EOFException();
       }
       if (this.currentChar != 'l') {
          throwUnexpected();
       }
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();     
       if (this.currentChar == -1) {
          throw new EOFException();
       }
       if (this.currentChar != 's') {
          throwUnexpected();
       }
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();      
       if (this.currentChar == -1) {
          throw new EOFException();
       }
       if (this.currentChar != 'e') {
          throwUnexpected();
       }
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();      
       if (!isEndOfValue(this.currentChar)) {
          throwUnexpected();
       }
@@ -226,32 +215,28 @@ public final class Parser {
     ***************************************************************************/
    private Object parseNull() throws IOException {
 
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();      
       if (this.currentChar == -1) {
          throw new EOFException();
       }
       if (this.currentChar != 'u') {
          throwUnexpected();
       }
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();      
       if (this.currentChar == -1) {
          throw new EOFException();
       }
       if (this.currentChar != 'l') {
          throwUnexpected();
       }
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();      
       if (this.currentChar == -1) {
          throw new EOFException();
       }
       if (this.currentChar != 'l') {
          throwUnexpected();
       }
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();      
       if (!isEndOfValue(this.currentChar)) {
          throwUnexpected();
       }
@@ -264,8 +249,7 @@ public final class Parser {
    private Hashtable parseObject() throws IOException {
 
       final Hashtable result = new Hashtable();
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();      
       consumeWhitespace();
       if (this.currentChar == -1) {
          throw new EOFException();
@@ -284,8 +268,7 @@ public final class Parser {
             if (this.currentChar != ':') {
                throwUnexpected();
             }
-            this.currentChar = this.reader.read();
-            ++this.position;
+            this.currentChar = read();            
             consumeWhitespace();
             if (this.currentChar == -1) {
                throw new EOFException();
@@ -296,8 +279,7 @@ public final class Parser {
                case -1:
                   throw new EOFException();
                case ',':
-                  this.currentChar = this.reader.read();
-                  ++this.position;
+                  this.currentChar = read();                  
                   consumeWhitespace();
                   if (this.currentChar == -1) {
                      throw new EOFException();
@@ -319,8 +301,7 @@ public final class Parser {
    private Vector parseArray() throws IOException {
 
       final Vector result = new Vector();
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();      
       consumeWhitespace();
       if (this.currentChar == -1) {
          throw new EOFException();
@@ -334,8 +315,7 @@ public final class Parser {
                case -1:
                   throw new EOFException();
                case ',':
-                  this.currentChar = this.reader.read();
-                  ++this.position;
+                  this.currentChar = read();                  
                   consumeWhitespace();
                   break;
                case ']':
@@ -357,16 +337,14 @@ public final class Parser {
       long integer = 0;
       if (this.currentChar == '-') {
          signum = -1;
-         this.currentChar = this.reader.read();
-         ++this.position;
+         this.currentChar = read();         
       }
       if (this.currentChar == -1) {
          throw new EOFException();
       }
       while (isDigit(this.currentChar)) {
          integer = 10 * integer + (this.currentChar - '0');
-         this.currentChar = this.reader.read();
-         ++this.position;
+         this.currentChar = read();         
       }
       if (isEndOfValue(this.currentChar)) {
          // integer - no exponent
@@ -374,8 +352,7 @@ public final class Parser {
       }
       if (this.currentChar == '.') {
          // floating point
-         this.currentChar = this.reader.read();
-         ++this.position;
+         this.currentChar = read();         
          if (this.currentChar == -1) {
             throw new EOFException();
          }
@@ -384,23 +361,20 @@ public final class Parser {
          }
          double decimal = 0.1 * (this.currentChar - '0');
          double factor = 0.01;
-         this.currentChar = this.reader.read();
-         ++this.position;
+         this.currentChar = read();         
          while (isDigit(this.currentChar)) {
             decimal += factor * (this.currentChar - '0');
             factor /= 10;
-            this.currentChar = this.reader.read();
-            ++this.position;
+            this.currentChar = read();
+            
          }
          if (this.currentChar == 'e' | this.currentChar == 'E') {
             // floating point with exponent
-            this.currentChar = this.reader.read();
-            ++this.position;
+            this.currentChar = read();            
             int expSignum = 1;
             if (this.currentChar == '-') {
                expSignum = -1;
-               this.currentChar = this.reader.read();
-               ++this.position;
+               this.currentChar = read();               
             }
             if (this.currentChar == -1) {
                throw new EOFException();
@@ -409,12 +383,10 @@ public final class Parser {
                throwUnexpected();
             }
             long exponent = (this.currentChar - '0');
-            this.currentChar = this.reader.read();
-            ++this.position;
+            this.currentChar = read();            
             while (isDigit(this.currentChar)) {
                exponent = 10 * exponent + (this.currentChar - '0');
-               this.currentChar = this.reader.read();
-               ++this.position;
+               this.currentChar = read();               
             }
             if (isEndOfValue(this.currentChar)) {
                if (expSignum > 0) {
@@ -434,13 +406,11 @@ public final class Parser {
       }
       if (this.currentChar == 'e' | this.currentChar == 'E') {
          // integer or float with exponent
-         this.currentChar = this.reader.read();
-         ++this.position;
+         this.currentChar = read();         
          int expSignum = 1;
          if (this.currentChar == '-') {
             expSignum = -1;
-            this.currentChar = this.reader.read();
-            ++this.position;
+            this.currentChar = read();            
          }
          if (this.currentChar == -1) {
             throw new EOFException();
@@ -449,12 +419,11 @@ public final class Parser {
             throwUnexpected();
          }
          long exponent = (this.currentChar - '0');
-         this.currentChar = this.reader.read();
-         ++this.position;
+         this.currentChar = read();
+         
          while (isDigit(this.currentChar)) {
             exponent = 10 * exponent + (this.currentChar - '0');
-            this.currentChar = this.reader.read();
-            ++this.position;
+            this.currentChar = read();            
          }
          if (isEndOfValue(this.currentChar)) {
             if (expSignum > 0) {
@@ -499,8 +468,7 @@ public final class Parser {
       boolean escaped = false;
       loop:
       for (;;) {
-         this.currentChar = this.reader.read();
-         ++this.position;
+         this.currentChar = read();         
          switch (this.currentChar) {
             case -1:
                throw new EOFException();
@@ -569,8 +537,7 @@ public final class Parser {
                   int chr = 0;
                   for (int i = 0; i < 4; ++i) {
                      chr <<= 4;
-                     this.currentChar = this.reader.read();
-                     ++this.position;
+                     this.currentChar = read();                     
                      if (this.currentChar >= '0' & this.currentChar <= '9') {
                         chr += (this.currentChar - '0');
                      } else if (this.currentChar >= 'A' & this.currentChar <= 'F') {
@@ -595,8 +562,7 @@ public final class Parser {
                break;
          }
       }
-      this.currentChar = this.reader.read();
-      ++this.position;
+      this.currentChar = read();      
       if (!isEndOfValue(this.currentChar)) {
          throwUnexpected();
       }
@@ -633,8 +599,7 @@ public final class Parser {
    private void consumeWhitespace() throws IOException {
 
       while (isWhitespace(this.currentChar)) {
-         this.currentChar = this.reader.read();
-         ++this.position;
+         this.currentChar = read();         
       }
    }
 
@@ -659,6 +624,14 @@ public final class Parser {
          this.buffer = newBuffer;
       }
       this.buffer[this.bufIndex++] = chr;
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private int read() throws IOException {
+      
+      ++this.position;
+      return this.reader.read();
    }
 
    /****************************************************************************
