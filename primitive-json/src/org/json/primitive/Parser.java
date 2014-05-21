@@ -52,6 +52,8 @@ public final class Parser {
     * @throws IOException if input error occurs.
     * @throws org.json.primitive.UnexpectedCharacterException if malformed JSON is
     * encountered.
+    * @throws org.json.primitive.DuplicatedKeyException if JSON object with two 
+    * same kays is encountered
     * @throws NullPointerException if reader is null.
     ***************************************************************************/
    public Object parse(final Reader reader) throws IOException {
@@ -83,6 +85,9 @@ public final class Parser {
     *    java.util.Vector if the string containes JSON array.
     * @throws IOException if input error occurs.
     * @throws org.json.primitive.UnexpectedCharacterException if malformed JSON is
+    * encountered.
+    * @throws org.json.primitive.DuplicatedKeyException if JSON object with two 
+    * same kays is encountered
     * encountered.
     * @throws NullPointerException if reader is null.
     ***************************************************************************/
@@ -273,7 +278,9 @@ public final class Parser {
             if (currentChar == -1) {
                throw new EOFException();
             }
-            result.put(key, parseValue(currentChar));
+            if (result.put(key, parseValue(currentChar)) != null) {
+               throw new DuplicatedKeyException(key);
+            }
             currentChar = consumeWhitespace(this.recentChar);
             switch (currentChar) {
                case -1:
@@ -470,7 +477,7 @@ public final class Parser {
 
       this.bufIndex = 0;
       boolean escaped = false;
-      int currentChar; 
+      int currentChar;
       loop:
       for (;;) {
          currentChar = read();
