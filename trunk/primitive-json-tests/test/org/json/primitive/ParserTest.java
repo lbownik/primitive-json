@@ -355,10 +355,21 @@ public class ParserTest extends TestCase {
     ***************************************************************************/
    public void testEOFArrays() throws Exception {
 
-      //nulll
       parseEOF("[");
       parseEOF("[2");
       parseEOF("[2,");
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   public void testDuplicatedKey() throws Exception {
+
+      try {
+         parse("{\"a\":1,\"a\":2}");
+         fail();
+      } catch (final DuplicatedKeyException e) {
+         assertEquals("a", e.key);
+      }
    }
 
    /****************************************************************************
