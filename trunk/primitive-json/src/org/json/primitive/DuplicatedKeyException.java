@@ -18,15 +18,13 @@ package org.json.primitive;
 import java.io.IOException;
 
 /*******************************************************************************
- * An exception thrown when parser encounters malformed JSON syntax.
+ * An exception thrown when parser encounters duplicatedJSON object keys.
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
 public final class DuplicatedKeyException extends IOException {
 
    /****************************************************************************
-    * 
-    * @param position posision of unexpected character.
-    * @param character unexpected character value (zero based).
+    * @param key duplicated key.
     ***************************************************************************/
    DuplicatedKeyException(final String key) {
 
@@ -36,6 +34,6 @@ public final class DuplicatedKeyException extends IOException {
    /****************************************************************************
     * 
     ***************************************************************************/
-   /** Unexpected character value.*/
+   /** Duplicated key.*/
    public final String key;
 }
