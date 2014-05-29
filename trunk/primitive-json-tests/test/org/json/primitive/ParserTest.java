@@ -568,13 +568,13 @@ public class ParserTest{
    public void testCreation() throws IOException {
 
       try {
-         new Parser(0);
+         new Parser(0,10,10);
          fail();
       } catch (final IllegalArgumentException e) {
          assertTrue(true);
       }
       try {
-         new Parser(-1);
+         new Parser(-1,10,10);
          fail();
       } catch (final IllegalArgumentException e) {
          assertTrue(true);
@@ -618,7 +618,7 @@ public class ParserTest{
    /****************************************************************************
     * 
     ***************************************************************************/
-   private final Parser p = new Parser(16);
+   private final Parser p = new Parser(16,10,10);
    final static String example = "{"
            + "	\"abcde\":{"
            + "	\"interval\":5,"
