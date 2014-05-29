@@ -33,15 +33,32 @@ public final class Parser {
     * Setting this parameter to a predicted maximum string value length helps 
     * avoiding beffer realocations while parsing. If in doubt, use 15. 
     * This paramater exists only for performance optimization purposes.
+   * @param initialHashtableSize initial java.util.Hashtable size. 
+    * Setting this parameter to a predicted maximum count of object members helps 
+    * avoiding realocations and rehashing while parsing. If in doubt, use 10. 
+    * This paramater exists only for performance optimization purposes.
+   * @param initialVectorSize initial java.util.Vector size. 
+    * Setting this parameter to a predicted maximum count of array elements helps 
+    * avoiding realocations while parsing. If in doubt, use 10. 
+    * This paramater exists only for performance optimization purposes.
     * @throws java.lang.IllegalArgumentException if initialBufferSize <= 0.
     ***************************************************************************/
-   public Parser(final int initialBufferSize) {
+   public Parser(final int initialBufferSize, final int initialHashtableSize,
+           final int initialVectorSize) {
 
       if (initialBufferSize <= 0) {
          throw new IllegalArgumentException("initialBufferSize <= 0");
       }
+      if (initialHashtableSize <= 0) {
+         throw new IllegalArgumentException("initialHashtableSize <= 0");
+      }
+      if (initialVectorSize <= 0) {
+         throw new IllegalArgumentException("initialVectorSize <= 0");
+      }
       this.buffer = new char[initialBufferSize];
       this.bufferSize = this.buffer.length;
+      this.initialHashtableSize = initialHashtableSize;
+      this.initialVectorSize = initialVectorSize;
    }
 
    /****************************************************************************
@@ -254,7 +271,7 @@ public final class Parser {
     ***************************************************************************/
    private Hashtable parseObject() throws IOException {
 
-      final Hashtable result = new Hashtable();
+      final Hashtable result = new Hashtable(this.initialHashtableSize);
       int currentChar = consumeWhitespace(read());
       if (currentChar == -1) {
          throw new EOFException();
@@ -307,7 +324,7 @@ public final class Parser {
     ***************************************************************************/
    private Vector parseArray() throws IOException {
 
-      final Vector result = new Vector();
+      final Vector result = new Vector(this.initialVectorSize);
       int currentChar = read();
       currentChar = consumeWhitespace(currentChar);
       if (currentChar == -1) {
@@ -657,4 +674,7 @@ public final class Parser {
    private char[] buffer;
    private int bufferSize;
    private int bufIndex = 0;
+   
+   private final int initialVectorSize;
+   private final int initialHashtableSize;
 }

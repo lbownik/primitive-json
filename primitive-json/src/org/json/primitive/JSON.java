@@ -31,33 +31,37 @@ import java.util.Vector;
 public class JSON {
 
    /****************************************************************************
-    * Parse JSON object (invokes new Parser(16).parse(reader)).
+    * Parse JSON object (invokes new Parser(16,10,10).parse(reader)).
     * @param reader a reader object.
     * @return java.util.Hashtable if the reader contained JSON object or 
     *    java.util.Vector if the reader contained JSON array.
     * @throws IOException if input error occurs.
     * @throws org.json.primitive.UnexpectedCharacterException if malformed JSON is
     * encountered.
+    * @throws org.json.primitive.DuplicatedKeyException if JSON object with two 
+    * same kays is encountered
     * @throws NullPointerException if reader is null.
     ***************************************************************************/
    public static Object parse(final Reader reader) throws IOException {
 
-      return new Parser(16).parse(reader);
+      return new Parser(16, 10, 10).parse(reader);
    }
 
    /****************************************************************************
-    * Parse JSON object (invokes new Parser(16).parse(s)).
+    * Parse JSON object (invokes new Parser(16,10,10).parse(s)).
     * @param s a JSON string.
     * @return java.util.Hashtable if the string containes JSON object or 
     *    java.util.Vector if the string containes JSON array.
     * @throws IOException if input error occurs.
     * @throws org.json.primitive.UnexpectedCharacterException if malformed JSON is
     * encountered.
+    * @throws org.json.primitive.DuplicatedKeyException if JSON object with two 
+    * same kays is encountered
     * @throws NullPointerException if reader is null.
     ***************************************************************************/
    public static Object parse(final String s) throws IOException {
 
-      return new Parser(16).parse(s);
+      return new Parser(16, 10, 10).parse(s);
    }
 
    /****************************************************************************
@@ -267,6 +271,28 @@ public class JSON {
       out.write(value.toString());
    }
 
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+//   private static void write(long value, final Writer out)
+//           throws IOException {
+//
+//      final char[] buf = new char[20];
+//      int bufIndex = 0;
+//      final boolean negative = value < 0;
+//      if (negative) {
+//         out.write('-');
+//         value *= -1;
+//         ++bufIndex;
+//      }
+//      
+//      
+//         final long reminder = value % 10;
+//         if (reminder > 0) {
+//            value /= 10;
+//         }
+//      }
+//   }
    /****************************************************************************
     *
     ***************************************************************************/
