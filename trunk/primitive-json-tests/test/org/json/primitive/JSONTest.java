@@ -27,16 +27,20 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
-import junit.framework.TestCase;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+import org.junit.Test;
 
 /*******************************************************************************
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
-public class JSONTest extends TestCase {
+public class JSONTest {
 
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testToString() throws Exception {
 
       Vector array;
@@ -80,6 +84,7 @@ public class JSONTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testToByteArray() throws Exception {
 
       try {
@@ -105,6 +110,7 @@ public class JSONTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testParseFormURL() throws Exception {
 
       final HttpURLConnection c
@@ -125,6 +131,7 @@ public class JSONTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testParseFormRawSocket() throws Exception {
 
       new Thread() {

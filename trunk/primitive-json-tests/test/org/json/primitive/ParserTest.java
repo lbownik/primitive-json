@@ -20,17 +20,21 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Hashtable;
 import java.util.Vector;
-import junit.framework.TestCase;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+import org.junit.Test;
 
 /*******************************************************************************
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
 @SuppressWarnings("rawtypes")
-public class ParserTest extends TestCase {
+public class ParserTest{
 
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testProperPrimitiveValues() throws Exception {
 
       Vector v;
@@ -178,6 +182,7 @@ public class ParserTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testErronousPrimitiveValues() throws Exception {
 
       //nulll
@@ -199,6 +204,7 @@ public class ParserTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testEOFPrimitiveValues() throws Exception {
 
       //nulll
@@ -219,6 +225,7 @@ public class ParserTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testProperArrays() throws Exception {
 
       Vector result;
@@ -341,6 +348,7 @@ public class ParserTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testErronousArrays() throws Exception {
 
       //nulll
@@ -353,6 +361,7 @@ public class ParserTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testEOFArrays() throws Exception {
 
       parseEOF("[");
@@ -362,6 +371,7 @@ public class ParserTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testDuplicatedKey() throws Exception {
 
       try {
@@ -375,6 +385,7 @@ public class ParserTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testProperObjects() throws Exception {
 
       Hashtable result;
@@ -507,6 +518,7 @@ public class ParserTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testErronousObjects() throws Exception {
 
       //nulll
@@ -520,6 +532,7 @@ public class ParserTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testEOFObjects() throws Exception {
 
       //nulll
@@ -532,6 +545,7 @@ public class ParserTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testPparseNullPointer() throws IOException {
 
       try {
@@ -550,6 +564,7 @@ public class ParserTest extends TestCase {
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testCreation() throws IOException {
 
       try {

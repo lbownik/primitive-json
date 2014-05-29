@@ -15,16 +15,19 @@
 //------------------------------------------------------------------------------
 package org.json.primitive;
 
-import junit.framework.TestCase;
+import static junit.framework.Assert.assertTrue;
+import static junit.framework.Assert.fail;
+import org.junit.Test;
 
 /*******************************************************************************
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
-public class StringWriterTest extends TestCase {
+public class StringWriterTest {
 
    /****************************************************************************
     * 
     ***************************************************************************/
+   @Test
    public void testConstructor() throws Exception {
 
       try {
