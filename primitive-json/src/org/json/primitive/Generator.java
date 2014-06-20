@@ -32,8 +32,9 @@ public final class Generator {
     * 
     ***************************************************************************/
    public Generator() {
-      
+
    }
+
    /****************************************************************************
     * Encode an object into JSON text and write it to out.
     * 
@@ -106,7 +107,7 @@ public final class Generator {
       if (kenum.hasMoreElements()) {
          final Object key = kenum.nextElement();
          out.write('\"');
-         writeEscaped((String)key, out);
+         writeEscaped(key.toString(), out);
          out.write('\"');
          out.write(':');
          writeValue(value.get(key), out);
@@ -115,7 +116,7 @@ public final class Generator {
          out.write(',');
          final Object key = kenum.nextElement();
          out.write('\"');
-         writeEscaped((String)key, out);
+         writeEscaped(key.toString(), out);
          out.write('\"');
          out.write(':');
          writeValue(value.get(key), out);
@@ -133,39 +134,56 @@ public final class Generator {
          out.write("null");
          return;
       }
-      if (value instanceof String) {
-         out.write('\"');
-         writeEscaped((String) value, out);
-         out.write('\"');
-         return;
-      }
-      if (value instanceof Double) {
+      final Class cls = value.getClass();
+      if (cls == Double.class) {
          final Double d = (Double) value;
          if (d.isInfinite() | d.isNaN()) {
             out.write("null");
          } else {
-            out.write(value.toString());
+            write(d.doubleValue(), out);
          }
          return;
       }
-      if (value instanceof Float) {
+      if (cls == Float.class) {
          final Float f = (Float) value;
          if (f.isInfinite() | f.isNaN()) {
             out.write("null");
          } else {
-            out.write(value.toString());
+            write(f.doubleValue(), out);
          }
          return;
       }
-      if (value instanceof Hashtable) {
+      if (cls == Byte.class) {
+         write(((Byte) value).byteValue(), out);
+         return;
+      }
+      if (cls == Short.class) {
+         write(((Short) value).shortValue(), out);
+         return;
+      }
+      if (cls == Integer.class) {
+         write(((Integer) value).intValue(), out);
+         return;
+      }
+      if (cls == Long.class) {
+         write(((Long) value).longValue(), out);
+         return;
+      }
+      if (cls == Boolean.class) {
+         out.write(((Boolean) value).toString());
+         return;
+      }
+      if (cls == Hashtable.class) {
          write((Hashtable) value, out);
          return;
       }
-      if (value instanceof Vector) {
+      if (cls == Vector.class) {
          write((Vector) value, out);
          return;
       }
-      out.write(value.toString());
+      out.write('\"');
+      writeEscaped(value.toString(), out);
+      out.write('\"');
    }
 
    /****************************************************************************
@@ -175,8 +193,9 @@ public final class Generator {
            throws IOException {
 
       if (s != null) {
-         for (int i = 0; i < s.length(); i++) {
-            char ch = s.charAt(i);
+         final int length = s.length();
+         for (int i = 0; i < length; i++) {
+            final char ch = s.charAt(i);
             switch (ch) {
                case '"':
                   out.write("\\\"");
@@ -222,30 +241,58 @@ public final class Generator {
          out.write("null");
       }
    }
+
    /****************************************************************************
     *
     ***************************************************************************/
-      /****************************************************************************
-    * 
-    ***************************************************************************/
-//   private static void write(long value, final Writer out)
-//           throws IOException {
-//
-//      final char[] buf = new char[20];
-//      int bufIndex = 0;
-//      final boolean negative = value < 0;
-//      if (negative) {
-//         out.write('-');
-//         value *= -1;
-//         ++bufIndex;
-//      }
-//      
-//      
-//         final long reminder = value % 10;
-//         if (reminder > 0) {
-//            value /= 10;
-//         }
-//      }
-//   }
+   private void write(long value, final Writer out)
+           throws IOException {
 
+      if (value == 0) {
+         out.write('0');
+         return;
+      }
+      if (value < 0) {
+         out.write('-');
+         value *= -1;
+      }
+
+      final int[] buf = this.buf;
+      int index = 0;
+      while (value > 0) {
+         buf[index++] = '0' + (int) (value % 10);
+         value /= 10;
+      }
+      while (index > 0) {
+         out.write(buf[--index]);
+      }
+   }
+
+   /****************************************************************************
+    *
+    ***************************************************************************/
+   private void write(double value, final Writer out)
+           throws IOException {
+
+      write((long) value, out);
+      if (value < 0) {
+         value *= -1;
+      }
+      double decimal = value - (long) value;
+      out.write('.');
+      if (decimal == 0.0) {
+         out.write('0');
+         return;
+      }
+      for (int i = 0; i < 14 & decimal != 0.0; i++) {
+         decimal *= 10.0;
+         out.write('0' + (int) decimal);
+         decimal -= (int) decimal;
+      }
+   }
+
+   /****************************************************************************
+    *
+    ***************************************************************************/
+   final int[] buf = new int[20];
 }

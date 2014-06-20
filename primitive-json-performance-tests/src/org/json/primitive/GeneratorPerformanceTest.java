@@ -15,6 +15,8 @@
 //------------------------------------------------------------------------------
 package org.json.primitive;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -28,18 +30,21 @@ public class GeneratorPerformanceTest {
     ***************************************************************************/
    public static void main(String[] args) throws Exception {
       
-      final long n = 50000;
+      final long n =10000;
       final Hashtable object = createObject();
-      
-//      final Generator g = new Generator();
+      final StringWriter writer = new StringWriter(example.length()+ 20);
+      final Generator g = new Generator();
+      g.write(object, writer);
       final long begin = System.currentTimeMillis();
       for (int i = 0; i < n; ++i) {
-         JSON.write(object, new StringWriter(example.length()));
+         g.write(object, writer);
+         writer.clear();
       }
       final long duration = System.currentTimeMillis() - begin;
       final long speed = 1000 * n / duration;
       System.out.println(speed);
    }
+
    /****************************************************************************
     * 
     ***************************************************************************/

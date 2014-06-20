@@ -15,6 +15,8 @@
 //------------------------------------------------------------------------------
 package org.json.primitive;
 
+import java.io.IOException;
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 import org.junit.Test;
@@ -44,4 +46,87 @@ public class StringWriterTest {
       }
       new StringWriter(1);
    }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void testWriteInt() throws IOException {
+
+      final StringWriter writer = new StringWriter(1);
+      assertEquals(0, writer.getSize());
+      writer.write('a');
+      assertEquals(1, writer.getSize());
+      assertEquals("a", writer.toString());
+      writer.write('a');
+      assertEquals(2, writer.getSize());
+      assertEquals("aa", writer.toString());
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void testWriteString() throws IOException {
+
+      final StringWriter writer = new StringWriter(1);
+      assertEquals(0, writer.getSize());
+      writer.write("a");
+      assertEquals(1, writer.getSize());
+      assertEquals("a", writer.toString());
+      writer.write("aa");
+      assertEquals(3, writer.getSize());
+      assertEquals("aaa", writer.toString());
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void testWriteStringOffset() throws IOException {
+
+      final StringWriter writer = new StringWriter(1);
+      assertEquals(0, writer.getSize());
+      writer.write("a", 0, 1);
+      assertEquals(1, writer.getSize());
+      assertEquals("a", writer.toString());
+      writer.write("aa", 1, 1);
+      assertEquals(2, writer.getSize());
+      assertEquals("aa", writer.toString());
+      writer.write("aa", 1, 0);
+      assertEquals(2, writer.getSize());
+      assertEquals("aa", writer.toString());
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void testWriteNullString() throws IOException {
+
+      final StringWriter writer = new StringWriter(1);
+      assertEquals(0, writer.getSize());
+      writer.write((String) null);
+      assertEquals(4, writer.getSize());
+      assertEquals("null", writer.toString());
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void testWriteCArrayOffset() throws IOException {
+
+      final StringWriter writer = new StringWriter(1);
+      assertEquals(0, writer.getSize());
+      writer.write("a".toCharArray(), 0, 1);
+      assertEquals(1, writer.getSize());
+      assertEquals("a", writer.toString());
+      writer.write("aa".toCharArray(), 1, 1);
+      assertEquals(2, writer.getSize());
+      assertEquals("aa", writer.toString());
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
 }
