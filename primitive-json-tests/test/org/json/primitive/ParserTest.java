@@ -17,7 +17,16 @@ package org.json.primitive;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.Writer;
+import java.net.HttpURLConnection;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.URL;
 import java.util.Hashtable;
 import java.util.Vector;
 import static junit.framework.Assert.assertEquals;
@@ -579,6 +588,69 @@ public class ParserTest{
       } catch (final IllegalArgumentException e) {
          assertTrue(true);
       }
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void testParseFormURL() throws Exception {
+
+      final HttpURLConnection c
+              = (HttpURLConnection) new URL("http://headers.jsontest.com/").openConnection();
+      c.setDoInput(true);
+      c.setRequestMethod("GET");
+      c.connect();
+      final Reader r = new InputStreamReader(c.getInputStream(), "UTF-8");
+      try {
+         final Hashtable o = (Hashtable) this.p.parse(r);
+         System.out.println(new Generator().toString(o));
+      } finally {
+         r.close();
+      }
+
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void testParseFormRawSocket() throws Exception {
+
+      new Thread() {
+
+         @Override
+         public void run() {
+            try {
+               final ServerSocket ss = new ServerSocket(60400);
+               final Socket s = ss.accept();
+               final Writer out = new OutputStreamWriter(s.getOutputStream(), "UTF-8");
+               final InputStream in = s.getInputStream();
+               out.write("{\"ip\": \"8.8.8.8\"}");
+               out.flush();
+               in.read();
+               out.write("{\"ip\": \"8.8.8.8\"}");
+               out.flush();
+               out.close();
+               in.close();
+            } catch (final Exception e) {
+               throw new RuntimeException(e);
+            }
+         }
+
+      }.start();
+
+      final Socket s = new Socket("localhost", 60400);
+      final Reader in = new InputStreamReader(s.getInputStream(), "UTF-8");
+      final OutputStream out = s.getOutputStream();
+      Hashtable o = null;
+      System.out.println("connected");
+      o = (Hashtable) this.p.parse(in);
+      System.out.println(new Generator().toString(o));
+      out.write(1);
+      o = (Hashtable) this.p.parse(in);
+      System.out.println(new Generator().toString(o));
+      in.close();
+      out.close();
    }
 
    /****************************************************************************

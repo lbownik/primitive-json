@@ -26,7 +26,7 @@ public final class StringWriter extends Writer {
 
    /****************************************************************************
     * Constructs writer.
-    * @param initialBufferSize initial interla buffer size.
+    * @param initialBufferSize initial internal buffer size.
     * @throws java.lang.IllegalArgumentException if initialBufferSize <= 0.
     ***************************************************************************/
    public StringWriter(final int initialBufferSize) {
@@ -142,7 +142,7 @@ public final class StringWriter extends Writer {
    }
 
    /****************************************************************************
-    * Clears content.
+    * @return number o characters in this writer.
     ***************************************************************************/
    public int getSize() {
 

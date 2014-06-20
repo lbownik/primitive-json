@@ -18,7 +18,7 @@ package org.json.primitive;
 import java.io.IOException;
 
 /*******************************************************************************
- * An exception thrown when parser encounters duplicatedJSON object keys.
+ * An exception thrown when parser encounters duplicated JSON object keys.
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
 public final class DuplicatedKeyException extends IOException {
