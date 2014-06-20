@@ -34,41 +34,81 @@ public final class StringWriter extends Writer {
       if (initialBufferSize <= 0) {
          throw new IllegalArgumentException("initialBufferSize <= 0");
       }
-      this.buffer = new StringBuffer(initialBufferSize);
+      this.buffer = new char[initialBufferSize];
+      this.bufferSize = initialBufferSize;
    }
 
    /****************************************************************************
     * @see java.io.Writer#write(char[], int, int) 
     ***************************************************************************/
-   public void write(final char[] cbuf, final int off, final int len)
+   public void write(final char[] cbuf, int off, final int length)
            throws IOException {
 
-      this.buffer.append(cbuf, off, len);
+      if ((off < 0) | (off > cbuf.length) | (length < 0)
+              | ((off + length) > cbuf.length) | ((off + length) < 0)) {
+         throw new IndexOutOfBoundsException();
+      } else if (length == 0) {
+         return;
+      }
+      if ((this.size + length) >= this.bufferSize) {
+         realloc(this.size + length);
+      }
+      final int siz = off + length;
+      for (; off < siz; ++off) {
+         this.buffer[this.size++] = cbuf[off];
+      }
    }
 
    /****************************************************************************
     * @see java.io.Writer#write(java.lang.String, int, int) 
     ***************************************************************************/
-   public void write(final String str, final int off,
-           final int len) throws IOException {
+   public void write(String str, int off, final int length) throws IOException {
 
-      this.buffer.append(str.substring(off, off + len));
+      if (str == null) {
+         str = "null";
+      }
+      if ((off < 0) | (off > str.length()) | (length < 0)
+              | ((off + length) > str.length()) | ((off + length) < 0)) {
+         throw new IndexOutOfBoundsException();
+      } else if (length == 0) {
+         return;
+      }
+
+      if ((this.size + length) >= this.bufferSize) {
+         realloc(this.size + length);
+      }
+      final int siz = off + length;
+      for (; off < siz; ++off) {
+         this.buffer[this.size++] = str.charAt(off);
+      }
    }
 
    /****************************************************************************
     * @see java.io.Writer#write(java.lang.String) 
     ***************************************************************************/
-   public void write(final String str) throws IOException {
+   public void write(String str) throws IOException {
 
-      this.buffer.append(str);
+      if (str == null) {
+         str = "null";
+      }
+      final int length = str.length();
+      if ((this.size + length) >= this.bufferSize) {
+         realloc(this.size + length);
+      }
+      for (int i = 0; i < length; ++i) {
+         this.buffer[this.size++] = str.charAt(i);
+      }
    }
 
    /****************************************************************************
     * @see java.io.Writer#write(int) 
     ***************************************************************************/
-   public void write(final char c) throws IOException {
+   public void write(final int c) throws IOException {
 
-      this.buffer.append(c);
+      if (this.size == this.bufferSize) {
+         realloc(this.bufferSize*2);
+      }
+      this.buffer[this.size++] = (char) c;
    }
 
    /****************************************************************************
@@ -90,7 +130,7 @@ public final class StringWriter extends Writer {
     ***************************************************************************/
    public String toString() {
 
-      return this.buffer.toString();
+      return new String(this.buffer, 0, this.size);
    }
 
    /****************************************************************************
@@ -98,10 +138,31 @@ public final class StringWriter extends Writer {
     ***************************************************************************/
    public void clear() {
 
-      this.buffer.setLength(0);
+      this.size = 0;
+   }
+
+   /****************************************************************************
+    * Clears content.
+    ***************************************************************************/
+   public int getSize() {
+
+      return this.size;
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private void realloc(final int newSize) {
+
+      this.bufferSize = newSize;
+      final char[] newBuffer = new char[this.bufferSize];
+      System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
+      this.buffer = newBuffer;
    }
    /****************************************************************************
     * 
     ***************************************************************************/
-   private final StringBuffer buffer;
+   private char[] buffer;
+   private int size = 0;
+   private int bufferSize;
 }
