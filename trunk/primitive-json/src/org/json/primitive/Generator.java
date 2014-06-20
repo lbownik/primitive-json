@@ -188,6 +188,10 @@ public final class Generator {
          out.write("null");
          return;
       }
+      if (value == Null.value) {
+         out.write("null");
+         return;
+      }
       final Class cls = value.getClass();
       if (cls == Double.class) {
          final Double d = (Double) value;
