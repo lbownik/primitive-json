@@ -30,15 +30,26 @@ public final class Parser {
 
    /****************************************************************************
     * Creates a new parser.
+    ***************************************************************************/
+   public Parser() {
+
+      this.buffer = new char[16];
+      this.bufferSize = this.buffer.length;
+      this.initialHashtableSize = 10;
+      this.initialVectorSize = 10;
+   }
+
+   /****************************************************************************
+    * Creates a new parser.
     * @param initialBufferSize initial internal buffer size for string values. 
     * Setting this parameter to a predicted maximum string value length helps 
     * avoiding beffer realocations while parsing. If in doubt, use 15. 
     * This paramater exists only for performance optimization purposes.
-   * @param initialHashtableSize initial java.util.Hashtable size. 
+    * @param initialHashtableSize initial java.util.Hashtable size. 
     * Setting this parameter to a predicted maximum count of object members helps 
     * avoiding realocations and rehashing while parsing. If in doubt, use 10. 
     * This paramater exists only for performance optimization purposes.
-   * @param initialVectorSize initial java.util.Vector size. 
+    * @param initialVectorSize initial java.util.Vector size. 
     * Setting this parameter to a predicted maximum count of array elements helps 
     * avoiding realocations while parsing. If in doubt, use 10. 
     * This paramater exists only for performance optimization purposes.
@@ -675,7 +686,7 @@ public final class Parser {
    private char[] buffer;
    private int bufferSize;
    private int bufIndex = 0;
-   
+
    private final int initialVectorSize;
    private final int initialHashtableSize;
 }

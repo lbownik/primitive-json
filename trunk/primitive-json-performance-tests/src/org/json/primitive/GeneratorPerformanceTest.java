@@ -15,8 +15,6 @@
 //------------------------------------------------------------------------------
 package org.json.primitive;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.Hashtable;
 import java.util.Vector;
 
