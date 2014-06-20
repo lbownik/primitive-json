@@ -29,7 +29,7 @@ import java.util.Vector;
 public final class Generator {
 
    /****************************************************************************
-    * 
+    * Create a generator
     ***************************************************************************/
    public Generator() {
 
@@ -51,15 +51,35 @@ public final class Generator {
          throw new NullPointerException("value");
       }
 
-      if (value instanceof Hashtable) {
+      final Class cls = value.getClass();
+      if (cls == Hashtable.class) {
          write((Hashtable) value, out);
          return;
       }
-      if (value instanceof Vector) {
+      if (cls == Vector.class) {
          write((Vector) value, out);
          return;
       }
       throw new IllegalArgumentException("Only Hashtable or Vector accepted");
+   }
+
+   /****************************************************************************
+    * Encode an object into JSON text.
+    * 
+    * @param value JSON object.
+    * @return JSON string.
+    * @throws NullPointerException if value == null.
+    * @throws IllegalArgumentException if value is not Hashtable or Vector.
+    ***************************************************************************/
+   public String toString(final Object value) {
+
+      try {
+         final Writer wr = new StringWriter(32);
+         write(value, wr);
+         return wr.toString();
+      } catch (final IOException e) {
+         throw new RuntimeException(e.getMessage()); // never happens
+      }
    }
 
    /****************************************************************************
@@ -86,6 +106,23 @@ public final class Generator {
          writeValue(value.elementAt(lastIndex), out);
       }
       out.write(']');
+   }
+
+   /****************************************************************************
+    * Encode an Vector into JSON text.
+    * 
+    * @param value vector.
+    * @throws NullPointerException if value == null.
+    ***************************************************************************/
+   public String toString(final Vector value) {
+
+      try {
+         final Writer wr = new StringWriter(16);
+         write(value, wr);
+         return wr.toString();
+      } catch (final IOException e) {
+         throw new RuntimeException(e.getMessage()); // never happens
+      }
    }
 
    /****************************************************************************
@@ -122,6 +159,23 @@ public final class Generator {
          writeValue(value.get(key), out);
       }
       out.write('}');
+   }
+
+   /****************************************************************************
+    * Encode a Hashtable into JSON text.
+    * 
+    * @param value hashtable.
+    * @throws NullPointerException if value == null.
+    ***************************************************************************/
+   public String toString(final Hashtable value) {
+
+      try {
+         final Writer wr = new StringWriter(16);
+         write(value, wr);
+         return wr.toString();
+      } catch (final IOException e) {
+         throw new RuntimeException(e.getMessage()); // never happens
+      }
    }
 
    /****************************************************************************
@@ -192,54 +246,63 @@ public final class Generator {
    private static void writeEscaped(final String s, final Writer out)
            throws IOException {
 
-      if (s != null) {
-         final int length = s.length();
-         for (int i = 0; i < length; i++) {
-            final char ch = s.charAt(i);
-            switch (ch) {
-               case '"':
-                  out.write("\\\"");
-                  break;
-               case '\\':
-                  out.write("\\\\");
-                  break;
-               case '\b':
-                  out.write("\\b");
-                  break;
-               case '\f':
-                  out.write("\\f");
-                  break;
-               case '\n':
-                  out.write("\\n");
-                  break;
-               case '\r':
-                  out.write("\\r");
-                  break;
-               case '\t':
-                  out.write("\\t");
-                  break;
-               case '/':
-                  out.write("\\/");
-                  break;
-               default:
-                  //Reference: http://www.unicode.org/versions/Unicode5.1.0/
-                  if ((ch >= '\u0000' && ch <= '\u001F')
-                          || (ch >= '\u007F' && ch <= '\u009F')
-                          || (ch >= '\u2000' && ch <= '\u20FF')) {
-                     final String ss = Integer.toHexString(ch);
-                     out.write("\\u");
-                     for (int k = 0; k < 4 - ss.length(); k++) {
-                        out.write('0');
-                     }
-                     out.write(ss.toUpperCase());
-                  } else {
-                     out.write(ch);
-                  }
-            }
-         }//for
-      } else {
+      if (s == null) {
          out.write("null");
+         return;
       }
+      final int length = s.length();
+      for (int i = 0; i < length; i++) {
+         final char ch = s.charAt(i);
+         switch (ch) {
+            case '"':
+               out.write('\\');
+               out.write('"');
+               break;
+            case '\\':
+               out.write('\\');
+               out.write('\\');
+               break;
+            case '\b':
+               out.write('\\');
+               out.write('b');
+               break;
+            case '\f':
+               out.write('\\');
+               out.write('f');
+               break;
+            case '\n':
+               out.write('\\');
+               out.write('n');
+               break;
+            case '\r':
+               out.write('\\');
+               out.write('r');
+               break;
+            case '\t':
+               out.write('\\');
+               out.write('t');
+               break;
+            case '/':
+               out.write('\\');
+               out.write('/');
+               break;
+            default:
+               //Reference: http://www.unicode.org/versions/Unicode5.1.0/
+               if ((ch >= '\u0000' && ch <= '\u001F')
+                       || (ch >= '\u007F' && ch <= '\u009F')
+                       || (ch >= '\u2000' && ch <= '\u20FF')) {
+                  final String ss = Integer.toHexString(ch);
+                  out.write('\\');
+                  out.write('u');
+                  for (int k = 0; k < 4 - ss.length(); k++) {
+                     out.write('0');
+                  }
+                  out.write(ss.toUpperCase());
+               } else {
+                  out.write(ch);
+               }
+         }
+      }//for
    }
 
    /****************************************************************************
@@ -294,5 +357,5 @@ public final class Generator {
    /****************************************************************************
     *
     ***************************************************************************/
-   final int[] buf = new int[20];
+   final int[] buf = new int[22];
 }
