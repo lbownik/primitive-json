@@ -24,6 +24,16 @@ import java.util.Vector;
 /*******************************************************************************
  * JSON parser. This class is not thread safe but can be reused for parsing 
  * consecutive JSON messages one by one.
+ * This parser represents JSON as:
+ *   <ul>
+ *   <li>java.util.Hashtable,</li>
+ *   <li>java.util.Vector,</li>
+ *   <li>java.lang.String,</li>
+ *   <li>java.lang.Long,</li>
+ *   <li>java.lang.Double,</li>
+ *   <li>java.lang.Boolean,</li>
+ *   <li>org.json.primitive.Null.value (cause Hashtable does not support null values).</li>
+ *   </ul>
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
 public final class Parser {

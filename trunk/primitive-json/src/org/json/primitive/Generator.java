@@ -24,6 +24,22 @@ import java.util.Vector;
 /*******************************************************************************
  * JSON generator. This class is not thread safe but can be reused for generating 
  * consecutive JSON messages one by one.
+ * This generator accepts object of type:
+ *   <ul>
+ *   <li>null,</li>
+ *   <li>java.util.Hashtable,</li>
+ *   <li>java.util.Vector,</li>
+ *   <li>java.lang.String,</li>
+ *   <li>java.lang.Byte,</li>
+ *   <li>java.lang.Short,</li>
+ *   <li>java.lang.Integer,</li>
+ *   <li>java.lang.Long,</li>
+ *   <li>java.lang.Float,</li>
+ *   <li>java.lang.Double,</li>
+ *   <li>java.lang.Boolean,</li>
+ *   <li>org.json.primitive.Null,</li>
+ *   <li>objects of any other class (converted to string using toString method)</li>
+ *   </ul>
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
 public final class Generator {
@@ -112,6 +128,7 @@ public final class Generator {
     * Encode an Vector into JSON text.
     * 
     * @param value vector.
+    * @return JSON string.
     * @throws NullPointerException if value == null.
     ***************************************************************************/
    public String toString(final Vector value) {
@@ -165,6 +182,7 @@ public final class Generator {
     * Encode a Hashtable into JSON text.
     * 
     * @param value hashtable.
+    * @return JSON string.
     * @throws NullPointerException if value == null.
     ***************************************************************************/
    public String toString(final Hashtable value) {

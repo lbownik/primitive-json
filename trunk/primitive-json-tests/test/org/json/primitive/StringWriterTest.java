@@ -24,7 +24,7 @@ import org.junit.Test;
 /*******************************************************************************
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
-public class StringWriterTest {
+public final class StringWriterTest {
 
    /****************************************************************************
     * 
@@ -102,6 +102,46 @@ public class StringWriterTest {
     * 
     ***************************************************************************/
    @Test
+   public void testWriteStringOffsetErrors() throws IOException {
+
+      final StringWriter writer = new StringWriter(1);
+      assertEquals(0, writer.getSize());
+      try {
+         writer.write("a", -1, 1);
+         fail();
+      } catch (final IndexOutOfBoundsException e) {
+         assertTrue(true);
+      }
+      try {
+         writer.write("a", 1, 1);
+         fail();
+      } catch (final IndexOutOfBoundsException e) {
+         assertTrue(true);
+      }
+      try {
+         writer.write("a", 2, 1);
+         fail();
+      } catch (final IndexOutOfBoundsException e) {
+         assertTrue(true);
+      }
+      try {
+         writer.write("a", 0, 2);
+         fail();
+      } catch (final IndexOutOfBoundsException e) {
+         assertTrue(true);
+      }
+      try {
+         writer.write("a", 1, -1);
+         fail();
+      } catch (final IndexOutOfBoundsException e) {
+         assertTrue(true);
+      }
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
    public void testWriteNullString() throws IOException {
 
       final StringWriter writer = new StringWriter(1);
@@ -125,6 +165,46 @@ public class StringWriterTest {
       writer.write("aa".toCharArray(), 1, 1);
       assertEquals(2, writer.getSize());
       assertEquals("aa", writer.toString());
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void testWriteCArrayOffsetErrors() throws IOException {
+
+      final StringWriter writer = new StringWriter(1);
+      assertEquals(0, writer.getSize());
+      try {
+         writer.write("a".toCharArray(), -1, 1);
+         fail();
+      } catch (final IndexOutOfBoundsException e) {
+         assertTrue(true);
+      }
+      try {
+         writer.write("a".toCharArray(), 1, 1);
+         fail();
+      } catch (final IndexOutOfBoundsException e) {
+         assertTrue(true);
+      }
+      try {
+         writer.write("a".toCharArray(), 2, 1);
+         fail();
+      } catch (final IndexOutOfBoundsException e) {
+         assertTrue(true);
+      }
+      try {
+         writer.write("a".toCharArray(), 0, 2);
+         fail();
+      } catch (final IndexOutOfBoundsException e) {
+         assertTrue(true);
+      }
+      try {
+         writer.write("a".toCharArray(), 1, -1);
+         fail();
+      } catch (final IndexOutOfBoundsException e) {
+         assertTrue(true);
+      }
    }
    /****************************************************************************
     * 
