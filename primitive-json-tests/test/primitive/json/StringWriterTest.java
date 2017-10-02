@@ -13,13 +13,13 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 //------------------------------------------------------------------------------
-package org.json.primitive;
+package primitive.json;
 
 import java.io.IOException;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.Assert.fail;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /*******************************************************************************
  * @author lukasz.bownik@gmail.com

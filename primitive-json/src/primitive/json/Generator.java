@@ -13,13 +13,13 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 //------------------------------------------------------------------------------
-package org.json.primitive;
+package primitive.json;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /*******************************************************************************
  * JSON generator. This class is not thread safe but can be reused for generating 
@@ -27,8 +27,8 @@ import java.util.Vector;
  * This generator accepts object of type:
  *   <ul>
  *   <li>null,</li>
- *   <li>java.util.Hashtable,</li>
- *   <li>java.util.Vector,</li>
+ *   <li>java.util.HashMap,</li>
+ *   <li>java.util.ArrayList,</li>
  *   <li>java.lang.String,</li>
  *   <li>java.lang.Byte,</li>
  *   <li>java.lang.Short,</li>
@@ -58,7 +58,7 @@ public final class Generator {
     * @param out writer object.
     * @throws IOException if woutput error occurs.
     * @throws NullPointerException if value or out == null.
-    * @throws IllegalArgumentException if value is not Hashtable or Vector.
+    * @throws IllegalArgumentException if value is not HashMap or ArrayList.
     ***************************************************************************/
    public void write(final Object value, final Writer out)
            throws IOException {
@@ -68,15 +68,15 @@ public final class Generator {
       }
 
       final Class cls = value.getClass();
-      if (cls == Hashtable.class) {
-         write((Hashtable) value, out);
+      if (cls == HashMap.class) {
+         write((HashMap) value, out);
          return;
       }
-      if (cls == Vector.class) {
-         write((Vector) value, out);
+      if (cls == ArrayList.class) {
+         write((ArrayList) value, out);
          return;
       }
-      throw new IllegalArgumentException("Only Hashtable or Vector accepted");
+      throw new IllegalArgumentException("Only Hashtable or ArrayList accepted");
    }
 
    /****************************************************************************
@@ -85,7 +85,7 @@ public final class Generator {
     * @param value JSON object.
     * @return JSON string.
     * @throws NullPointerException if value == null.
-    * @throws IllegalArgumentException if value is not Hashtable or Vector.
+    * @throws IllegalArgumentException if value is not Hashtable or ArrayList.
     ***************************************************************************/
    public String toString(final Object value) {
 
@@ -99,14 +99,14 @@ public final class Generator {
    }
 
    /****************************************************************************
-    * Encode an Vector into JSON text and write it to out.
+    * Encode an ArrayList into JSON text and write it to out.
     * 
     * @param value vector.
     * @param out writer object.
     * @throws IOException if woutput error occurs.
     * @throws NullPointerException if value or out == null.
     ***************************************************************************/
-   public void write(final Vector value, final Writer out)
+   public void write(final ArrayList value, final Writer out)
            throws IOException {
 
       if (value == null) {
@@ -116,22 +116,22 @@ public final class Generator {
       final int lastIndex = value.size() - 1;
       if (lastIndex > -1) {
          for (int i = 0; i < lastIndex; ++i) {
-            writeValue(value.elementAt(i), out);
+            writeValue(value.get(i), out);
             out.write(',');
          }
-         writeValue(value.elementAt(lastIndex), out);
+         writeValue(value.get(lastIndex), out);
       }
       out.write(']');
    }
 
    /****************************************************************************
-    * Encode an Vector into JSON text.
+    * Encode an ArrayList into JSON text.
     * 
     * @param value vector.
     * @return JSON string.
     * @throws NullPointerException if value == null.
     ***************************************************************************/
-   public String toString(final Vector value) {
+   public String toString(final ArrayList value) {
 
       try {
          final Writer wr = new StringWriter(16);
@@ -143,32 +143,32 @@ public final class Generator {
    }
 
    /****************************************************************************
-    * Encode a Hashtable into JSON text and write it to out.
+    * Encode a HashMap into JSON text and write it to out.
     * 
     * @param value hashtable.
     * @param out writer object.
     * @throws IOException if woutput error occurs.
     * @throws NullPointerException if value or out == null.
     ***************************************************************************/
-   public void write(final Hashtable value, final Writer out)
+   public void write(final HashMap value, final Writer out)
            throws IOException {
 
       if (value == null) {
          throw new NullPointerException("value");
       }
       out.write('{');
-      final Enumeration kenum = value.keys();
-      if (kenum.hasMoreElements()) {
-         final Object key = kenum.nextElement();
+      final Iterator keys = value.keySet().iterator();
+      if (keys.hasNext()) {
+         final Object key = keys.next();
          out.write('\"');
          writeEscaped(key.toString(), out);
          out.write('\"');
          out.write(':');
          writeValue(value.get(key), out);
       }
-      while (kenum.hasMoreElements()) {
+      while (keys.hasNext()) {
          out.write(',');
-         final Object key = kenum.nextElement();
+         final Object key = keys.next();
          out.write('\"');
          writeEscaped(key.toString(), out);
          out.write('\"');
@@ -179,13 +179,13 @@ public final class Generator {
    }
 
    /****************************************************************************
-    * Encode a Hashtable into JSON text.
+    * Encode a HashMap into JSON text.
     * 
     * @param value hashtable.
     * @return JSON string.
     * @throws NullPointerException if value == null.
     ***************************************************************************/
-   public String toString(final Hashtable value) {
+   public String toString(final HashMap value) {
 
       try {
          final Writer wr = new StringWriter(16);
@@ -203,10 +203,6 @@ public final class Generator {
            throws IOException {
 
       if (value == null) {
-         out.write("null");
-         return;
-      }
-      if (value == Null.value) {
          out.write("null");
          return;
       }
@@ -249,12 +245,12 @@ public final class Generator {
          out.write(((Boolean) value).toString());
          return;
       }
-      if (cls == Hashtable.class) {
-         write((Hashtable) value, out);
+      if (cls == HashMap.class) {
+         write((HashMap) value, out);
          return;
       }
-      if (cls == Vector.class) {
-         write((Vector) value, out);
+      if (cls == ArrayList.class) {
+         write((ArrayList) value, out);
          return;
       }
       out.write('\"');

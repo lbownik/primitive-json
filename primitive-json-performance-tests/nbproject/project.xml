@@ -4,7 +4,6 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/j2se-project/3">
             <name>primitive-json-performance-tests</name>
-            <explicit-platform explicit-source-supported="true"/>
             <source-roots>
                 <root id="src.dir"/>
             </source-roots>
@@ -20,9 +19,6 @@
                 <target>jar</target>
                 <clean-target>clean</clean-target>
                 <id>jar</id>
-                <properties>
-                    <property name="config.active"/>
-                </properties>
             </reference>
         </references>
     </configuration>

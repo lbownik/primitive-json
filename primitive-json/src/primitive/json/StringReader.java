@@ -13,27 +13,54 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 //------------------------------------------------------------------------------
-package org.json.primitive;
+package primitive.json;
 
 import java.io.IOException;
+import java.io.Reader;
 
 /*******************************************************************************
- * An exception thrown when parser encounters duplicated JSON object keys.
+ * A character stream whose source is a string. Not suitable for general usage.
+ * 
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
-public final class DuplicatedKeyException extends IOException {
+final class StringReader extends Reader {
 
-   /****************************************************************************
-    * @param key duplicated key.
-    ***************************************************************************/
-   DuplicatedKeyException(final String key) {
-
-      super("Duplicated key: ".concat(key));
-      this.key = key;
-   }
    /****************************************************************************
     * 
     ***************************************************************************/
-   /** Duplicated key.*/
-   public final String key;
+   StringReader(final String s) {
+
+      this.s = s;
+      this.length = s.length();
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   public int read() throws IOException {
+
+      return this.pos < this.length ? this.s.charAt(this.pos++) : -1;
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   public int read(final char[] cbuf, int off, final int len)
+           throws IOException {
+
+      return -1; // not implemented
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   public void close() throws IOException {
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private final String s;
+   private int pos = 0;
+   private final int length;
 }

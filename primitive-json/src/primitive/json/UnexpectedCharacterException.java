@@ -13,46 +13,32 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 //------------------------------------------------------------------------------
-package org.json.primitive;
+package primitive.json;
+
+import java.io.IOException;
 
 /*******************************************************************************
- * A place holder for null value
+ * An exception thrown when parser encounters malformed JSON syntax.
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
-public final class Null {
+public final class UnexpectedCharacterException extends IOException {
 
    /****************************************************************************
     * 
+    * @param position posision of unexpected character.
+    * @param character unexpected character value (zero based).
     ***************************************************************************/
-   private Null() {
+   UnexpectedCharacterException(final int position, final char character) {
 
-   }
-
-   /****************************************************************************
-    * 
-    ***************************************************************************/
-   public String toString() {
-
-      return "null";
-   }
-
-   /****************************************************************************
-    * 
-    ***************************************************************************/
-   public int hashCode() {
-
-      return 13;
-   }
-
-   /****************************************************************************
-    * 
-    ***************************************************************************/
-   public boolean equals(final Object other) {
-
-      return other != null ? other.getClass() == Null.class : false;
+      super("Unexpected character '" + character + "' at position " + position + ".");
+      this.position = position;
+      this.character = character;
    }
    /****************************************************************************
     * 
     ***************************************************************************/
-   public final static Null value = new Null();
+   /** Unexpected character value.*/
+   public final char character;
+   /** Position of unexpected character (zero based).*/
+   public final int position;
 }

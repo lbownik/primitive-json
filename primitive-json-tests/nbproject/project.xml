@@ -17,9 +17,6 @@
                 <target>jar</target>
                 <clean-target>clean</clean-target>
                 <id>jar</id>
-                <properties>
-                    <property name="config.active"/>
-                </properties>
             </reference>
         </references>
     </configuration>

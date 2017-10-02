@@ -13,43 +13,27 @@
 //See the License for the specific language governing permissions and
 //limitations under the License.
 //------------------------------------------------------------------------------
-package org.json.primitive;
+package primitive.json;
+
+import java.io.IOException;
 
 /*******************************************************************************
+ * An exception thrown when parser encounters duplicated JSON object keys.
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
-public class ParserPerformanceTest {
+public final class DuplicatedKeyException extends IOException {
 
    /****************************************************************************
-    * 
+    * @param key duplicated key.
     ***************************************************************************/
-   public static void main(String[] args) throws Exception {
+   DuplicatedKeyException(final String key) {
 
-      final long n = 5000000;
-      final Parser p = new Parser(15, 10, 10);
-      final long begin = System.currentTimeMillis();
-      for (int i = 0; i < n; ++i) {
-         p.parse(example);
-      }
-      final long duration = System.currentTimeMillis() - begin;
-      final long speed = 1000 * n / duration;
-      System.out.println(speed);
+      super("Duplicated key: ".concat(key));
+      this.key = key;
    }
    /****************************************************************************
     * 
     ***************************************************************************/
-   final static String example = "{"
-           + "	\"abcde\":{"
-           + "	\"interval\":5,"
-           + "	\"config\":true,"
-           + "	\"treshold\":\"LOW\"},"
-           + "	\"jhjhjhj\":[{\"module\":\"main\",\"type\":\"ACTIVE\",\"version\":2.2}],"
-           + "	\"array\":[{"
-           + "	\"id\":\"kldsjfkldejgfklejgfklrejtljrktljlrk\",\"value\":13},{"
-           + "	\"id\":\"lk;lk;lk;lklk;lk\",\"value\":13}],\"alarms\":[{"
-           + "	\"id\":\"kjkljkljklj\",\"state\":\"SET\",\"level\":\"16\",\"message\":\"Overheat\"}],"
-           + "	\"array2\": [-12.0e10, -120000000000.0, 123243324.43434, 13, -12.0e10, -120000000000.0,"
-           + " 123243324.43434, 13,-12.0e10, -120000000000.0, 123243324.43434, 13,-12.0e10,"
-           + " -120000000000.0, 123243324.43434, 13]}";
-
+   /** Duplicated key.*/
+   public final String key;
 }

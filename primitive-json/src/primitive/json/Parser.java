@@ -1,3 +1,5 @@
+package primitive.json;
+
 //------------------------------------------------------------------------------
 //Copyright 2014 Lukasz Bownik
 //
@@ -12,27 +14,25 @@
 //WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //See the License for the specific language governing permissions and
 //limitations under the License.
-//------------------------------------------------------------------------------
-package org.json.primitive;
-
+//-----------------------------------------------------------------------------
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 /*******************************************************************************
  * JSON parser. This class is not thread safe but can be reused for parsing 
  * consecutive JSON messages one by one.
  * This parser represents JSON as:
  *   <ul>
- *   <li>java.util.Hashtable,</li>
- *   <li>java.util.Vector,</li>
+ *   <li>java.util.HashMap,</li>
+ *   <li>java.util.ArrayList,</li>
  *   <li>java.lang.String,</li>
  *   <li>java.lang.Long,</li>
  *   <li>java.lang.Double,</li>
  *   <li>java.lang.Boolean,</li>
- *   <li>org.json.primitive.Null.value (cause Hashtable does not support null values).</li>
+ *   <li>null</li>
  *   </ul>
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
@@ -89,9 +89,9 @@ public final class Parser {
     * @return java.util.Hashtable if the reader contained JSON object or 
     *    java.util.Vector if the reader contained JSON array.
     * @throws IOException if input error occurs.
-    * @throws org.json.primitive.UnexpectedCharacterException if malformed JSON is
+    * @throws primitive.json.UnexpectedCharacterException if malformed JSON is
     * encountered.
-    * @throws org.json.primitive.DuplicatedKeyException if JSON object with two 
+    * @throws primitive.json.DuplicatedKeyException if JSON object with two 
     * same kays is encountered
     * @throws NullPointerException if reader is null.
     ***************************************************************************/
@@ -123,9 +123,9 @@ public final class Parser {
     * @return java.util.Hashtable if the string containes JSON object or 
     *    java.util.Vector if the string containes JSON array.
     * @throws IOException if input error occurs.
-    * @throws org.json.primitive.UnexpectedCharacterException if malformed JSON is
+    * @throws primitive.json.UnexpectedCharacterException if malformed JSON is
     * encountered.
-    * @throws org.json.primitive.DuplicatedKeyException if JSON object with two 
+    * @throws primitive.json.DuplicatedKeyException if JSON object with two 
     * same kays is encountered
     * encountered.
     * @throws NullPointerException if reader is null.
@@ -285,15 +285,15 @@ public final class Parser {
          throwUnexpected(currentChar);
       }
       this.recentChar = currentChar;
-      return Null.value;
+      return null;
    }
 
    /****************************************************************************
     * 
     ***************************************************************************/
-   private Hashtable parseObject() throws IOException {
+   private HashMap<String, Object> parseObject() throws IOException {
 
-      final Hashtable result = new Hashtable(this.initialHashtableSize);
+      final HashMap<String, Object> result = new HashMap<>(this.initialHashtableSize);
       int currentChar = consumeWhitespace(read());
       if (currentChar == -1) {
          throw new EOFException();
@@ -344,9 +344,9 @@ public final class Parser {
    /****************************************************************************
     * 
     ***************************************************************************/
-   private Vector parseArray() throws IOException {
+   private ArrayList<Object> parseArray() throws IOException {
 
-      final Vector result = new Vector(this.initialVectorSize);
+      final ArrayList<Object> result = new ArrayList<>(this.initialVectorSize);
       int currentChar = read();
       currentChar = consumeWhitespace(currentChar);
       if (currentChar == -1) {
@@ -355,7 +355,7 @@ public final class Parser {
       if (currentChar != ']') {
          loop:
          for (;;) {
-            result.addElement(parseValue(currentChar));
+            result.add(parseValue(currentChar));
             currentChar = this.recentChar;
             currentChar = consumeWhitespace(currentChar);
             switch (currentChar) {
@@ -617,7 +617,7 @@ public final class Parser {
          throwUnexpected(currentChar);
       }
       this.recentChar = currentChar;
-      return new String(this.buffer, 0, this.bufIndex);
+      return this.bufIndex > 0 ? new String(this.buffer, 0, this.bufIndex) : "";
    }
 
    /****************************************************************************
