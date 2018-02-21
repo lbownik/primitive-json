@@ -1,0 +1,40 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.json.primitive</groupId>
+    <artifactId>primitive-json</artifactId>
+    <name>JSOB parser/ganerator</name>
+    <version>1.1</version>
+    <description>A simple, lightweight, CLDC 1.1 compliant JSON parser/generator.</description>
+    <url>http://code.google.com/p/primitive-json/</url>
+    <packaging>jar</packaging>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:svn:http://primitive-json.googlecode.com/svn/trunk/</connection>
+        <developerConnection>scm:svn:https://primitive-json.googlecode.com/svn/trunk/</developerConnection>
+        <url>http://primitive-json.googlecode.com/svn/trunk/</url>
+    </scm>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>6</version>
+    </parent>
+
+
+    <distributionManagement>
+        <repository>
+            <id>sonatype.repo</id>
+            <name>Sonatype</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+    </distributionManagement>
+
+</project>
