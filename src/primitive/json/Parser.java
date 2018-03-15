@@ -100,7 +100,7 @@ public final class Parser {
       this.reader = reader;
       try {
          this.position = -1;
-         final int currentChar = read();
+         final int currentChar = consumeWhitespace(read());
          switch (currentChar) {
             case '{':
                return parseObject();
@@ -385,9 +385,15 @@ public final class Parser {
       if (currentChar == '-') {
          signum = -1;
          currentChar = read();
-      }
-      if (currentChar == -1) {
-         throw new EOFException();
+         if (currentChar == -1) {
+            throw new EOFException();
+         }
+         if(currentChar == '.') {
+            throwUnexpected(currentChar);
+         }
+         if (isEndOfValue(currentChar)) {
+            throwUnexpected(currentChar);
+         }
       }
       while (isDigit(currentChar)) {
          integer = 10 * integer + (currentChar - '0');
@@ -421,6 +427,9 @@ public final class Parser {
             int expSignum = 1;
             if (currentChar == '-') {
                expSignum = -1;
+               currentChar = read();
+            }
+            if (currentChar == '+') {
                currentChar = read();
             }
             if (currentChar == -1) {
@@ -457,6 +466,9 @@ public final class Parser {
          // integer or float with exponent
          currentChar = read();
          int expSignum = 1;
+         if (currentChar == '+') {
+            currentChar = read();
+         }
          if (currentChar == '-') {
             expSignum = -1;
             currentChar = read();
@@ -525,7 +537,7 @@ public final class Parser {
                throw new EOFException();
             case '\\':
                if (escaped) {
-                  append('\"');
+                  append('\\');
                   escaped = false;
                } else {
                   escaped = true;

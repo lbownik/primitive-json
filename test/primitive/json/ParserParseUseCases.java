@@ -15,12 +15,9 @@
 //------------------------------------------------------------------------------
 package primitive.json;
 
-import java.io.EOFException;
-import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -31,40 +28,15 @@ import static org.junit.Assert.fail;
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
 @SuppressWarnings("rawtypes")
-public class ParserUseCases {
+public class ParserParseUseCases extends ParserUseCasesBase {
 
    /****************************************************************************
     * 
     ***************************************************************************/
    @Test
-   public void constructor_ThrowsException_ForNevativeArgumentValues()
-           throws IOException {
-      
-      assertIllegalArgumentException(() -> new Parser(0, 10, 10));
-      assertIllegalArgumentException(() -> new Parser(-1, 10, 10));
-      
-      assertIllegalArgumentException(() -> new Parser(10, 0, 10));
-      assertIllegalArgumentException(() -> new Parser(10, -1, 10));
-      
-      assertIllegalArgumentException(() -> new Parser(10, 10, 0));
-      assertIllegalArgumentException(() -> new Parser(10, 10, -1));
-   }
-   /****************************************************************************
-    * 
-    ***************************************************************************/
-   @Test
-   public void constructor_doesNotThrowException_ForProperInvocation()
-           throws IOException {
-      
-      new Parser(10, 10, 10);
-   }
-   /****************************************************************************
-    * 
-    ***************************************************************************/
-   @Test
-   public void parse_throwsNullPointerException_ForNullArgument()
-           throws IOException {
-      
+   public void throwsNullPointerException_ForNullArgument()
+           throws Exception {
+
       try {
          new Parser().parse((Reader) null);
          fail("NullPointertException failed.");
@@ -82,48 +54,40 @@ public class ParserUseCases {
     * 
     ***************************************************************************/
    @Test
-   public void parse_returnsEmptyMap_ForEmptyObject()
-           throws IOException {
-      
-      Map result = (Map) parse("{}");
- 
-      assertEquals(0, result.size());
-      
-      result = (Map) parse("{  \r\t\n}");
- 
-      assertEquals(0, result.size());
+   public void returnsEmptyMap_ForEmptyObject()
+           throws Exception {
+
+      assertEmptyMap("{}");
+      assertEmptyMap("{  \r\t\n}");
+      assertEmptyMap("    {}");
    }
    /****************************************************************************
     * 
     ***************************************************************************/
    @Test
-   public void parse_throwsEOException_ForUnfinishedEmptyObject()
-           throws IOException {
-      
+   public void throwsEOException_ForUnfinishedEmptyObject()
+           throws Exception {
+
       assertEOF("{");
    }
    /****************************************************************************
     * 
     ***************************************************************************/
    @Test
-   public void parse_returnsEmptyList_ForEmptyArray()
-           throws IOException {
-      
-      List result = (List) parse("[]");
-      
-      assertEquals(0, result.size());
-      
-      result = (List) parse("[   \r\t\n]");
-      
-      assertEquals(0, result.size());
+   public void returnsEmptyList_ForEmptyArray()
+           throws Exception {
+
+      assertEmptyList("[]");
+      assertEmptyList("[   \r\t\n]");
+      assertEmptyList("   []");
    }
    /****************************************************************************
     * 
     ***************************************************************************/
    @Test
-   public void parse_throwsEOException_ForUnfinishedEmptyArray()
-           throws IOException {
-      
+   public void throwsEOException_ForUnfinishedEmptyArray()
+           throws Exception {
+
       assertEOF("[");
       assertEOF("[null");
    }
@@ -131,11 +95,16 @@ public class ParserUseCases {
     * 
     ***************************************************************************/
    @Test
-   public void parse_returnsNull_ForProperInput()
-           throws IOException {
-      
+   public void returnsNull_ForProperInput()
+           throws Exception {
+
       List result = (List) parse("[null]");
-      
+
+      assertEquals(1, result.size());
+      assertNull(result.get(0));
+
+      result = (List) parse("[   null   ]");
+
       assertEquals(1, result.size());
       assertNull(result.get(0));
    }
@@ -143,9 +112,9 @@ public class ParserUseCases {
     * 
     ***************************************************************************/
    @Test
-   public void parse_throwsEOF_ForUnfinishedNull()
-           throws IOException {
-      
+   public void throwsEOF_ForUnfinishedNull()
+           throws Exception {
+
       assertEOF("[n");
       assertEOF("[nu");
       assertEOF("[nul");
@@ -155,14 +124,14 @@ public class ParserUseCases {
     * 
     ***************************************************************************/
    @Test
-   public void parse_throwsUnexpected_ForUnexpectedCharacterInNull()
-           throws IOException {
-      
+   public void throwsUnexpected_ForUnexpectedCharacterInNull()
+           throws Exception {
+
       assertUnexpected("[nx", 'x');
       assertUnexpected("[nux", 'x');
       assertUnexpected("[nulx", 'x');
       assertUnexpected("[nullx", 'x');
-      
+
       assertUnexpected("[n ", ' ');
       assertUnexpected("[nu ", ' ');
       assertUnexpected("[nul ", ' ');
@@ -171,11 +140,16 @@ public class ParserUseCases {
     * 
     ***************************************************************************/
    @Test
-   public void parse_returnsTrue_ForProperInput()
-           throws IOException {
-      
+   public void returnsTrue_ForProperInput()
+           throws Exception {
+
       List result = (List) parse("[true]");
-      
+
+      assertEquals(1, result.size());
+      assertEquals(Boolean.TRUE, result.get(0));
+
+      result = (List) parse("[  true   ]");
+
       assertEquals(1, result.size());
       assertEquals(Boolean.TRUE, result.get(0));
    }
@@ -183,9 +157,9 @@ public class ParserUseCases {
     * 
     ***************************************************************************/
    @Test
-   public void parse_throwsEOF_ForUnfinishedTrue()
-           throws IOException {
-      
+   public void throwsEOF_ForUnfinishedTrue()
+           throws Exception {
+
       assertEOF("[t");
       assertEOF("[tr");
       assertEOF("[tru");
@@ -195,14 +169,14 @@ public class ParserUseCases {
     * 
     ***************************************************************************/
    @Test
-   public void parse_throwsUnexpected_ForUnexpectedCharacterInTrue()
-           throws IOException {
-      
+   public void throwsUnexpected_ForUnexpectedCharacterInTrue()
+           throws Exception {
+
       assertUnexpected("[tx", 'x');
       assertUnexpected("[trx", 'x');
       assertUnexpected("[trux", 'x');
       assertUnexpected("[truex", 'x');
-      
+
       assertUnexpected("[t ", ' ');
       assertUnexpected("[tr ", ' ');
       assertUnexpected("[tru ", ' ');
@@ -211,11 +185,16 @@ public class ParserUseCases {
     * 
     ***************************************************************************/
    @Test
-   public void parse_returnsFalse_ForProperInput()
-           throws IOException {
-      
+   public void returnsFalse_ForProperInput()
+           throws Exception {
+
       List result = (List) parse("[false]");
-      
+
+      assertEquals(1, result.size());
+      assertEquals(Boolean.FALSE, result.get(0));
+
+      result = (List) parse("[   false  ]");
+
       assertEquals(1, result.size());
       assertEquals(Boolean.FALSE, result.get(0));
    }
@@ -223,9 +202,9 @@ public class ParserUseCases {
     * 
     ***************************************************************************/
    @Test
-   public void parse_throwsEOF_ForUnfinishedFales()
-           throws IOException {
-      
+   public void throwsEOF_ForUnfinishedFales()
+           throws Exception {
+
       assertEOF("[f");
       assertEOF("[fa");
       assertEOF("[fal");
@@ -236,21 +215,229 @@ public class ParserUseCases {
     * 
     ***************************************************************************/
    @Test
-   public void parse_throwsUnexpected_ForUnexpectedCharacterInFalse()
-           throws IOException {
-      
+   public void throwsUnexpected_ForUnexpectedCharacterInFalse()
+           throws Exception {
+
       assertUnexpected("[fx", 'x');
       assertUnexpected("[fax", 'x');
       assertUnexpected("[falx", 'x');
       assertUnexpected("[falsx", 'x');
       assertUnexpected("[falsex", 'x');
-      
+
       assertUnexpected("[f ", ' ');
       assertUnexpected("[fa ", ' ');
       assertUnexpected("[fal ", ' ');
       assertUnexpected("[fals ", ' ');
    }
 
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void returnsInteger_ForProperInput()
+           throws Exception {
+
+      assertLongEquals(0L, "[0]");
+      assertLongEquals(0L, "[-0]");
+
+      assertLongEquals(0L, "[  0  ]");
+      assertLongEquals(0L, "[  -0  ]");
+
+      assertLongEquals(1L, "[1]");
+      assertLongEquals(-1L, "[-1]");
+
+      assertLongEquals(123478900001L, "[123478900001]");
+      assertLongEquals(-123478900001L, "[-123478900001]");
+
+      assertLongEquals(1 * 10, "[1E1]");
+      assertLongEquals(1 * 10, "[1e1]");
+
+      assertLongEquals(1 * 10, "[1E+1]");
+      assertLongEquals(1 * 10, "[1e+1]");
+
+      assertLongEquals(1, "[1E0]");
+      assertLongEquals(1, "[1e0]");
+
+      assertLongEquals(1, "[1E-0]");
+      assertLongEquals(1, "[1e-0]");
+
+      assertLongEquals(1, "[1E+0]");
+      assertLongEquals(1, "[1e+0]");
+
+      assertLongEquals(120000000000L, "[12E10]");
+      assertLongEquals(120000000000L, "[12e10]");
+
+      assertLongEquals(-120000000000L, "[-12E10]");
+      assertLongEquals(-120000000000L, "[-12e10]");
+
+      assertLongEquals(0, "[0E0]");
+      assertLongEquals(0, "[0e0]");
+
+      assertLongEquals(0, "[-0E0]");
+      assertLongEquals(0, "[-0e0]");
+
+      assertLongEquals(0, "[0E-0]");
+      assertLongEquals(0, "[0e-0]");
+
+      assertLongEquals(0, "[-0E-0]");
+      assertLongEquals(0, "[-0e-0]");
+
+      assertLongEquals(0, "[-0E+0]");
+      assertLongEquals(0, "[-0e+0]");
+   }
+
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void throwsEOF_ForUnfinishedInteger()
+           throws Exception {
+
+      assertEOF("[1");
+      assertEOF("[-");
+      assertEOF("[1E");
+      assertEOF("[1e");
+      assertEOF("[1E-");
+      assertEOF("[1e-");
+      assertEOF("[1E+");
+      assertEOF("[1e+");
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void throwsUnexpected_ForUnexpectedCharacterInInteger()
+           throws Exception {
+
+      assertUnexpected("[-]", ']');
+      assertUnexpected("[1E]", ']');
+      assertUnexpected("[1e]", ']');
+      assertUnexpected("[1E-]", ']');
+      assertUnexpected("[1e-]", ']');
+      assertUnexpected("[1E+]", ']');
+      assertUnexpected("[1e+]", ']');
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void returnsDouble_ForProperInput()
+           throws Exception {
+
+      assertDoubleEquals(0.1, "[1E-1]");
+      assertDoubleEquals(0.1, "[1e-1]");
+
+      assertDoubleEquals(-0.1, "[-1E-1]");
+      assertDoubleEquals(-0.1, "[-1e-1]");
+
+      assertDoubleEquals(1.0, "[1.0]");
+      assertDoubleEquals(-1.0, "[-1.0]");
+
+      assertDoubleEquals(0.0, "[0.0]");
+      assertDoubleEquals(-0.0, "[-0.0]");
+
+      assertDoubleEquals(123243324.43434, "[123243324.43434]");
+      assertDoubleEquals(-123243324.43434, "[-123243324.43434]");
+
+      assertDoubleEquals(1.0, "[1.0E0]");
+      assertDoubleEquals(1.0, "[1.0E+0]");
+      assertDoubleEquals(1.0, "[1.0E-0]");
+
+      assertDoubleEquals(1.0, "[1.0e0]");
+      assertDoubleEquals(1.0, "[1.0e+0]");
+      assertDoubleEquals(1.0, "[1.0e-0]");
+
+      assertDoubleEquals(-1.0, "[-1.0E0]");
+      assertDoubleEquals(-1.0, "[-1.0E+0]");
+      assertDoubleEquals(-1.0, "[-1.0E-0]");
+
+      assertDoubleEquals(-1.0, "[-1.0e0]");
+      assertDoubleEquals(-1.0, "[-1.0e+0]");
+      assertDoubleEquals(-1.0, "[-1.0e-0]");
+
+      assertDoubleEquals(0.0, "[0.0E0]");
+      assertDoubleEquals(0.0, "[0.0E+0]");
+      assertDoubleEquals(0.0, "[0.0E-0]");
+
+      assertDoubleEquals(0.0, "[0.0e0]");
+      assertDoubleEquals(0.0, "[0.0e+0]");
+      assertDoubleEquals(0.0, "[0.0e-0]");
+
+      assertDoubleEquals(-0.0, "[-0.0E0]");
+      assertDoubleEquals(-0.0, "[-0.0E+0]");
+      assertDoubleEquals(-0.0, "[-0.0E-0]");
+
+      assertDoubleEquals(-0.0, "[-0.0e0]");
+      assertDoubleEquals(-0.0, "[-0.0e+0]");
+      assertDoubleEquals(-0.0, "[-0.0e-0]");
+
+      assertDoubleEquals(120000000000.0, "[12.0E10]");
+      assertDoubleEquals(120000000000.0, "[12.0E+10]");
+      assertDoubleEquals(120000000000.0, "[12.0e10]");
+      assertDoubleEquals(120000000000.0, "[12.0e+10]");
+
+      assertDoubleEquals(-120000000000.0, "[-12.0E10]");
+      assertDoubleEquals(-120000000000.0, "[-12.0E+10]");
+      assertDoubleEquals(-120000000000.0, "[-12.0e10]");
+      assertDoubleEquals(-120000000000.0, "[-12.0e+10]");
+
+      assertDoubleEquals(0.0000000012, "[12.0E-10]");
+      assertDoubleEquals(0.0000000012, "[12.0e-10]");
+      assertDoubleEquals(-0.0000000012, "[-12.0E-10]");
+      assertDoubleEquals(-0.0000000012, "[-12.0e-10]");
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void throwsEOf_ForUnfinishedDouble()
+           throws Exception {
+
+      assertEOF("[1.");
+      assertEOF("[1.0E");
+      assertEOF("[1.0e");
+      assertEOF("[1.0E-");
+      assertEOF("[1.0e-");
+      assertEOF("[1.0E+");
+      assertEOF("[1.0e+");
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void throwsUnexpected_ForUnexpectedCharacterInDouble()
+           throws Exception {
+
+      assertUnexpected("[.]", '.');
+      assertUnexpected("[-.]", '.');
+      assertUnexpected("[1.]", ']');
+      assertUnexpected("[1.e]", 'e');
+      assertUnexpected("[1.E]", 'E');
+      assertUnexpected("[1.0-]", '-');
+      assertUnexpected("[1.0E]", ']');
+      assertUnexpected("[1.0e]", ']');
+      assertUnexpected("[1.0E+]", ']');
+      assertUnexpected("[1.0e+]", ']');
+      assertUnexpected("[1.0E-]", ']');
+      assertUnexpected("[1.0e-]", ']');
+      assertUnexpected("[1.0E-1x", 'x');
+      assertUnexpected("[1.0e-1x", 'x');
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void returnString_ForProperInput()
+           throws Exception {
+      
+      assertStringEquals("", "[\"\"]");
+      assertStringEquals("\\", "[\"\\\\\"]");
+      assertStringEquals(" ", "[\" \"]");
+      assertStringEquals("\b\f\n\r\t", "[\"\b\f\r\n\t\"]");
+      assertStringEquals("abc", "[\"abc\"]");
+      assertStringEquals("'", "[\"'\"]");
+      //assertStringEquals("\b\t\n\r", "[\"\\\b\\\t\\\n\\\r\"]");
+   }
    /****************************************************************************
     * 
     ***************************************************************************/
@@ -276,159 +463,9 @@ public class ParserUseCases {
 //      assertEquals("http://feedburner.google.com/fb/a/mailverify?uri=JavaCodeGeeks&loc=en_US",
 //              v.get(0));
 //      //number
-//      v = (ArrayList) parse("[1]");
-//      assertEquals(new Long(1), v.get(0));
-//      v = (ArrayList) parse("[123478900001]");
-//      assertEquals(new Long(123478900001L), v.get(0));
-//      v = (ArrayList) parse("[-123478900001]");
-//      assertEquals(new Long(-123478900001L), v.get(0));
-//      v = (ArrayList) parse("[0]");
-//      assertEquals(new Long(0), v.get(0));
-//      v = (ArrayList) parse("[-0]");
-//      assertEquals(new Long(-0), v.get(0));
-//      v = (ArrayList) parse("[1.0]");
-//      assertEquals(new Double(1.0), v.get(0));
-//      v = (ArrayList) parse("[0.0]");
-//      assertEquals(new Double(0.0), v.get(0));
-//      v = (ArrayList) parse("[-1.0]");
-//      assertEquals(new Double(-1.0), v.get(0));
-//      v = (ArrayList) parse("[-0.0]");
-//      assertEquals(new Double(-0.0), v.get(0));
-//      v = (ArrayList) parse("[123243324.43434]");
-//      assertEquals(new Double(123243324.43434), v.get(0));
-//      v = (ArrayList) parse("[-123243324.43434]");
-//      assertEquals(new Double(-123243324.43434), v.get(0));
-//      v = (ArrayList) parse("[1E1]");
-//      assertEquals(new Long(1 * 10), v.get(0));
-//      v = (ArrayList) parse("[1e1]");
-//      assertEquals(new Long(1 * 10), v.get(0));
-//      v = (ArrayList) parse("[1E0]");
-//      assertEquals(new Long(1), v.get(0));
-//      v = (ArrayList) parse("[1E-0]");
-//      assertEquals(new Long(1), v.get(0));
-//      v = (ArrayList) parse("[1e-0]");
-//      assertEquals(new Long(1), v.get(0));
-//      v = (ArrayList) parse("[1E-1]");
-//      assertEquals(new Double(0.1), v.get(0));
-//      v = (ArrayList) parse("[1e-1]");
-//      assertEquals(new Double(0.1), v.get(0));
-//      v = (ArrayList) parse("[-1E-1]");
-//      assertEquals(new Double(-0.1), v.get(0));
-//      v = (ArrayList) parse("[-1e-1]");
-//      assertEquals(new Double(-0.1), v.get(0));
-//      v = (ArrayList) parse("[12E10]");
-//      assertEquals(new Long(120000000000L), v.get(0));
-//      v = (ArrayList) parse("[12e10]");
-//      assertEquals(new Long(120000000000L), v.get(0));
-//      v = (ArrayList) parse("[-12E10]");
-//      assertEquals(new Long(-120000000000L), v.get(0));
-//      v = (ArrayList) parse("[-12e10]");
-//      assertEquals(new Long(-120000000000L), v.get(0));
-//      v = (ArrayList) parse("[0E0]");
-//      assertEquals(new Long(0), v.get(0));
-//      v = (ArrayList) parse("[0e0]");
-//      assertEquals(new Long(0), v.get(0));
-//      v = (ArrayList) parse("[0e-0]");
-//      assertEquals(new Long(0), v.get(0));
-//      v = (ArrayList) parse("[0E-0]");
-//      assertEquals(new Long(0), v.get(0));
-//      v = (ArrayList) parse("[-0E0]");
-//      assertEquals(new Long(0), v.get(0));
-//      v = (ArrayList) parse("[-0e0]");
-//      assertEquals(new Long(0), v.get(0));
-//      v = (ArrayList) parse("[-0e-0]");
-//      assertEquals(new Long(0), v.get(0));
-//      v = (ArrayList) parse("[-0E-0]");
-//      assertEquals(new Long(0), v.get(0));
-//      v = (ArrayList) parse("[1.0e0]");
-//      assertEquals(new Double(1.0), v.get(0));
-//      v = (ArrayList) parse("[1.0e-0]");
-//      assertEquals(new Double(1.0), v.get(0));
-//      v = (ArrayList) parse("[1.0E0]");
-//      assertEquals(new Double(1.0), v.get(0));
-//      v = (ArrayList) parse("[1.0E-0]");
-//      assertEquals(new Double(1.0), v.get(0));
-//      v = (ArrayList) parse("[0.0e0]");
-//      assertEquals(new Double(0.0), v.get(0));
-//      v = (ArrayList) parse("[0.0e-0]");
-//      assertEquals(new Double(0.0), v.get(0));
-//      v = (ArrayList) parse("[0.0E0]");
-//      assertEquals(new Double(0.0), v.get(0));
-//      v = (ArrayList) parse("[0.0E-0]");
-//      assertEquals(new Double(0.0), v.get(0));
-//      v = (ArrayList) parse("[-1.0e0]");
-//      assertEquals(new Double(-1.0), v.get(0));
-//      v = (ArrayList) parse("[-1.0e-0]");
-//      assertEquals(new Double(-1.0), v.get(0));
-//      v = (ArrayList) parse("[-1.0E0]");
-//      assertEquals(new Double(-1.0), v.get(0));
-//      v = (ArrayList) parse("[-1.0E-0]");
-//      assertEquals(new Double(-1.0), v.get(0));
-//      v = (ArrayList) parse("[-0.0e0]");
-//      assertEquals(new Double(-0.0), v.get(0));
-//      v = (ArrayList) parse("[-0.0e-0]");
-//      assertEquals(new Double(-0.0), v.get(0));
-//      v = (ArrayList) parse("[-0.0E0]");
-//      assertEquals(new Double(-0.0), v.get(0));
-//      v = (ArrayList) parse("[-0.0E-0]");
-//      assertEquals(new Double(-0.0), v.get(0));
-//      v = (ArrayList) parse("[12.0e10]");
-//      assertEquals(new Double(120000000000.0), v.get(0));
-//      v = (ArrayList) parse("[12.0e-10]");
-//      assertEquals(new Double(0.0000000012), v.get(0));
-//      v = (ArrayList) parse("[12.0E10]");
-//      assertEquals(new Double(120000000000.0), v.get(0));
-//      v = (ArrayList) parse("[12.0E-10]");
-//      assertEquals(new Double(0.0000000012), v.get(0));
-//      v = (ArrayList) parse("[-12.0e10]");
-//      assertEquals(new Double(-120000000000.0), v.get(0));
-//      v = (ArrayList) parse("[-12.0e-10]");
-//      assertEquals(new Double(-0.0000000012), v.get(0));
-//      v = (ArrayList) parse("[-12.0E10]");
-//      assertEquals(new Double(-120000000000.0), v.get(0));
-//      v = (ArrayList) parse("[-12.0E-10]");
-//      assertEquals(new Double(-0.0000000012), v.get(0));
+
 //   }
 //
-//   /****************************************************************************
-//    * 
-//    ***************************************************************************/
-//   @Test
-//   public void testErronousPrimitiveValues() throws Exception {
-//
-//      //nulll
-//      assertUnexpected("[nulL", 'L');
-//      assertUnexpected("[tru ", ' ');
-//      assertUnexpected("[falsee", 'e');
-//      //string
-//      assertUnexpected("[\"\"#", '#');
-//      // number
-//      assertUnexpected("[1x", 'x');
-//      assertUnexpected("[1. ", ' ');
-//      assertUnexpected("[1.0e ", ' ');
-//      assertUnexpected("[1.0d", 'd');
-//      assertUnexpected("[1.0e2f", 'f');
-//      assertUnexpected("[1e ", ' ');
-//      assertTrue(true);
-//   }
-//
-//   /****************************************************************************
-//    * 
-//    ***************************************************************************/
-//   @Test
-//   public void testEOFPrimitiveValues() throws Exception {
-//
-//      //nulll
-//      //string
-//      assertEOF("[\"");
-//      // number
-//      assertEOF("[1.");
-//      assertEOF("[-");
-//      assertEOF("[1.0e");
-//      assertEOF("[1.0e-");
-//      assertEOF("[1e");
-//      assertTrue(true);
-//   }
 //
 //   /****************************************************************************
 //    * 
@@ -800,53 +837,6 @@ public class ParserUseCases {
    /****************************************************************************
     * 
     ***************************************************************************/
-   private void assertUnexpected(final String str, final char unexpectedChar)
-           throws IOException {
-      
-      try {
-         parse(str);
-         fail("Unexpected character failed.");
-      } catch (final UnexpectedCharacterException e) {
-         assertEquals(unexpectedChar, e.character);
-      }
-   }
-   /****************************************************************************
-    * 
-    ***************************************************************************/
-   private void assertIllegalArgumentException(final Runnable task)
-           throws IOException {
-      
-      try {
-         task.run();
-         fail("IllegalArgumentException failed.");
-      } catch (final IllegalArgumentException e) {
-         assertTrue(true);
-      }
-   }
-
-   /****************************************************************************
-    * 
-    ***************************************************************************/
-   private void assertEOF(final String str) throws IOException {
-      
-      try {
-         parse(str);
-         fail("EOF failed.");
-      } catch (final EOFException e) {
-         assertTrue(true);
-      }
-   }
-
-   /****************************************************************************
-    * 
-    ***************************************************************************/
-   private Object parse(final String str) throws IOException {
-      
-      return new Parser().parse(str);
-   }
-   /****************************************************************************
-    * 
-    ***************************************************************************/
    final static String example = "{"
            + "	\"abcde\":{"
            + "	\"interval\":5,"
@@ -860,5 +850,5 @@ public class ParserUseCases {
            + "	\"array2\": [-12.0e10, -120000000000.0, 123243324.43434, 13, -12.0e10, -120000000000.0,"
            + " 123243324.43434, 13,-12.0e10, -120000000000.0, 123243324.43434, 13,-12.0e10,"
            + " -120000000000.0, 123243324.43434, 13]}";
-   
+
 }
