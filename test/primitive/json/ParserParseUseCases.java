@@ -429,44 +429,94 @@ public class ParserParseUseCases extends ParserUseCasesBase {
    @Test
    public void returnString_ForProperInput()
            throws Exception {
-      
+
       assertStringEquals("", "[\"\"]");
-      assertStringEquals("\\", "[\"\\\\\"]");
       assertStringEquals(" ", "[\" \"]");
-      assertStringEquals("\b\f\n\r\t", "[\"\b\f\r\n\t\"]");
-      assertStringEquals("abc", "[\"abc\"]");
+      assertStringEquals("\b", "[\"\b\"]");
+      assertStringEquals("\f", "[\"\f\"]");
+      assertStringEquals("\r", "[\"\r\"]");
+      assertStringEquals("\n", "[\"\n\"]");
+      assertStringEquals("\t", "[\"\t\"]");
+
+      assertStringEquals("\\", "[\"\\\\\"]");
+      assertStringEquals("\b", "[\"\\b\"]");
+      assertStringEquals("\f", "[\"\\f\"]");
+      assertStringEquals("\r", "[\"\\r\"]");
+      assertStringEquals("\n", "[\"\\n\"]");
+      assertStringEquals("\t", "[\"\\t\"]");
+      assertStringEquals("\b\f\n\r\t", "[\"\\b\\f\\n\\r\\t\"]");
+
+      assertStringEquals("bfnrt", "[\"bfnrt\"]");
       assertStringEquals("'", "[\"'\"]");
-      //assertStringEquals("\b\t\n\r", "[\"\\\b\\\t\\\n\\\r\"]");
+      assertStringEquals("\"", "[\"\\\"\"]");
+      assertStringEquals("/", "[\"\\/\"]");
+
+      assertStringEquals("abcśżą", "[\"abcśżą\"]");
+      assertStringEquals("!@#$%^&*()_-+=~`.,;:'[]{}|/?", "[\"!@#$%^&*()_-+=~`.,;:'[]{}|/?\"]");
+      assertStringEquals("ą", "[\"\\u0105\"]");
+      assertStringEquals("ą", "[\"\\u0105\"]");
+      assertStringEquals("bąb", "[\"b\\u0105b\"]");
+      assertStringEquals("ą", "[\"\\u0105\"]");
+      assertStringEquals("bśb", "[\"b\\u015Bb\"]");
+      assertStringEquals("bśb", "[\"b\\u015bb\"]");
+      assertStringEquals("http://feedburner.google.com/fb/a/mailverify?uri=JavaCodeGeeks&loc=en_US",
+              "[\"http://feedburner.google.com/fb/a/mailverify?uri=JavaCodeGeeks&loc=en_US\"]");
    }
    /****************************************************************************
     * 
     ***************************************************************************/
-//   @Test
-//   public void testProperPrimitiveValues() throws Exception {
-//
-//      ArrayList v;
-//      //string
-//      v = (ArrayList) parse("[\"\"]");
-//      assertEquals("", v.get(0));
-//      v = (ArrayList) parse("[\" \\tt\\rr\\nn\\ff\"]");
-//      assertEquals(" \tt\rr\nn\ff", v.get(0));
-//      v = (ArrayList) parse("[\"\\\"\\\"\"]");
-//      assertEquals("\"\"", v.get(0));
-//      v = (ArrayList) parse("[\"ał \\t$-_\"]");
-//      assertEquals("ał \t$-_", v.get(0));
-//      v = (ArrayList) parse("[\"a\\u0041b\\u0042\\u005A\"]");
-//      assertEquals("aAbBZ", v.get(0));
-//      v = (ArrayList) parse("[\"{\\\"aaa\\\": true, \\\"b\\\" : [null, null]}\"]");
-//      assertEquals("{\"aaa\": true, \"b\" : [null, null]}", v.get(0));
-//      v = (ArrayList) parse(
-//              "[\"http://feedburner.google.com/fb/a/mailverify?uri=JavaCodeGeeks&loc=en_US\"]");
-//      assertEquals("http://feedburner.google.com/fb/a/mailverify?uri=JavaCodeGeeks&loc=en_US",
-//              v.get(0));
-//      //number
+   @Test
+   public void throwsEOf_ForUnfinishedString()
+           throws Exception {
 
-//   }
-//
-//
+      assertEOF("[\"");
+      assertEOF("[\" ");
+      assertEOF("[\" ");
+      assertEOF("[\"\b");
+      assertEOF("[\"\f");
+      assertEOF("[\"\r");
+      assertEOF("[\"\n");
+      assertEOF("[\"\t");
+      assertEOF("[\"\\\\]");
+      assertEOF("[\"\\b");
+      assertEOF("[\"\\f");
+      assertEOF("[\"\\r");
+      assertEOF("[\"\\n");
+      assertEOF("[\"\\t");
+      assertEOF("[\"\\u");
+
+      assertEOF("[\"\\");
+      assertEOF("[\"\\\\");
+      assertEOF("[\"\\/");
+      assertEOF("[\"\\\"");
+
+      assertEOF("[\"\\u0");
+      assertEOF("[\"\\u00");
+      assertEOF("[\"\\u000");
+      assertEOF("[\"\\u0000");
+
+      assertEOF("[\"b");
+      assertEOF("[\"ś");
+      assertEOF("[\"!");
+      assertEOF("[\"'");
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void throwsUnexpected_ForUnexpectedCharacterInString()
+           throws Exception {
+
+      assertUnexpected("[\"\\x", 'x');
+      assertUnexpected("[\"\\:", ':');
+      assertUnexpected("[\"\\ ", ' ');
+      assertUnexpected("[\"\\ś", 'ś');
+      
+      assertUnexpected("[\"\\ux", 'x');
+      assertUnexpected("[\"\\u0x", 'x');
+      assertUnexpected("[\"\\u00x", 'x');
+      assertUnexpected("[\"\\u000x", 'x');
+   }
 //   /****************************************************************************
 //    * 
 //    ***************************************************************************/

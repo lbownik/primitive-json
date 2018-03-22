@@ -388,7 +388,7 @@ public final class Parser {
          if (currentChar == -1) {
             throw new EOFException();
          }
-         if(currentChar == '.') {
+         if (currentChar == '.') {
             throwUnexpected(currentChar);
          }
          if (isEndOfValue(currentChar)) {
@@ -527,7 +527,6 @@ public final class Parser {
    private String parseString() throws IOException {
 
       this.bufIndex = 0;
-      boolean escaped = false;
       int currentChar;
       loop:
       for (;;) {
@@ -535,89 +534,10 @@ public final class Parser {
          switch (currentChar) {
             case -1:
                throw new EOFException();
-            case '\\':
-               if (escaped) {
-                  append('\\');
-                  escaped = false;
-               } else {
-                  escaped = true;
-               }
-               break;
             case '"':
-               if (escaped) {
-                  append('\"');
-                  escaped = false;
-               } else {
-                  break loop;
-               }
-               break;
-            case '/':
-               append('/');
-               escaped = false;
-               break;
-            case 'b':
-               if (escaped) {
-                  append('\b');
-                  escaped = false;
-               } else {
-                  append('b');
-               }
-               break;
-            case 'f':
-               if (escaped) {
-                  append('\f');
-                  escaped = false;
-               } else {
-                  append('f');
-               }
-               break;
-            case 'n':
-               if (escaped) {
-                  append('\n');
-                  escaped = false;
-               } else {
-                  append('n');
-               }
-               break;
-            case 'r':
-               if (escaped) {
-                  append('\r');
-                  escaped = false;
-               } else {
-                  append('r');
-               }
-               break;
-            case 't':
-               if (escaped) {
-                  append('\t');
-                  escaped = false;
-               } else {
-                  append('t');
-               }
-               break;
-            case 'u':
-               if (escaped) {
-                  int chr = 0;
-                  for (int i = 0; i < 4; ++i) {
-                     chr <<= 4;
-                     currentChar = read();
-                     if (currentChar >= '0' & currentChar <= '9') {
-                        chr += (currentChar - '0');
-                     } else if (currentChar >= 'A' & currentChar <= 'F') {
-                        chr += (10 + (currentChar - 'A'));
-                     } else if (currentChar >= 'a' & currentChar <= 'f') {
-                        chr += (10 + (currentChar - 'a'));
-                     } else if (currentChar == -1) {
-                        throw new EOFException();
-                     } else {
-                        throwUnexpected(currentChar);
-                     }
-                  }
-                  append((char) chr);
-                  escaped = false;
-               } else {
-                  append('u');
-               }
+               break loop;
+            case '\\':
+               parseEscapedCharacter();
                break;
             default:
                append((char) currentChar);
@@ -628,10 +548,74 @@ public final class Parser {
       if (!isEndOfValue(currentChar)) {
          throwUnexpected(currentChar);
       }
-      this.recentChar = currentChar;
-      return this.bufIndex > 0 ? new String(this.buffer, 0, this.bufIndex) : "";
-   }
 
+      this.recentChar = currentChar;
+      return this.bufIndex > 0 ? new String(this.buffer,
+              0, this.bufIndex) : "";
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private void parseEscapedCharacter() throws IOException {
+
+      int currentChar = read();
+      switch (currentChar) {
+         case -1:
+            throw new EOFException();
+         case '\\':
+            append('\\');
+            break;
+         case '"':
+            append('\"');
+            break;
+         case '/':
+            append('/');
+            break;
+         case 'b':
+            append('\b');
+            break;
+         case 'f':
+            append('\f');
+            break;
+         case 'n':
+            append('\n');
+            break;
+         case 'r':
+            append('\r');
+            break;
+         case 't':
+            append('\t');
+            break;
+         case 'u':
+            parseHexadecimalCharacter();
+            break;
+         default:
+            throwUnexpected((char) currentChar);
+      }
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private void parseHexadecimalCharacter() throws IOException {
+
+      int chr = 0;
+      for (int i = 0; i < 4; ++i) {
+         chr <<= 4;
+         int currentChar = read();
+         if (currentChar >= '0' & currentChar <= '9') {
+            chr += (currentChar - '0');
+         } else if (currentChar >= 'A' & currentChar <= 'F') {
+            chr += (10 + (currentChar - 'A'));
+         } else if (currentChar >= 'a' & currentChar <= 'f') {
+            chr += (10 + (currentChar - 'a'));
+         } else if (currentChar == -1) {
+            throw new EOFException();
+         } else {
+            throwUnexpected(currentChar);
+         }
+      }
+      append((char) chr);
+   }
    /****************************************************************************
     * 
     ***************************************************************************/
