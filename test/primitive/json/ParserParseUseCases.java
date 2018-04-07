@@ -15,9 +15,18 @@
 //------------------------------------------------------------------------------
 package primitive.json;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.Writer;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import static java.util.Arrays.asList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -34,7 +43,7 @@ public class ParserParseUseCases extends ParserUseCasesBase {
     * 
     ***************************************************************************/
    @Test
-   public void throwsNullPointerException_ForNullArgument()
+   public void throwsNullPointer_ForNullArgument()
            throws Exception {
 
       try {
@@ -54,6 +63,25 @@ public class ParserParseUseCases extends ParserUseCasesBase {
     * 
     ***************************************************************************/
    @Test
+   public void throwsEOF_ForEmptyInput()
+           throws Exception {
+
+      assertEOF("");
+      assertEOF("   \t\n\r\f\b");
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void throwsUnexpected_ForNonJSON()
+           throws Exception {
+
+      assertUnexpected("xyz", 'x');
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
    public void returnsEmptyMap_ForEmptyObject()
            throws Exception {
 
@@ -65,10 +93,19 @@ public class ParserParseUseCases extends ParserUseCasesBase {
     * 
     ***************************************************************************/
    @Test
-   public void throwsEOException_ForUnfinishedEmptyObject()
+   public void throwsEOF_ForUnfinishedObject()
            throws Exception {
 
       assertEOF("{");
+      assertEOF("{ \b\t\r\n\f");
+      assertEOF("{\"a\"");
+      assertEOF("{\"a\" \b\t\r\n\f");
+      assertEOF("{\"a\":");
+      assertEOF("{\"a\": \b\t\r\n\f");
+      assertEOF("{\"a\":1");
+      assertEOF("{\"a\":1 \b\t\r\n\f");
+      assertEOF("{\"a\":1,");
+      assertEOF("{\"a\":1, \b\t\r\n\f");
    }
    /****************************************************************************
     * 
@@ -85,11 +122,14 @@ public class ParserParseUseCases extends ParserUseCasesBase {
     * 
     ***************************************************************************/
    @Test
-   public void throwsEOException_ForUnfinishedEmptyArray()
+   public void throwsEOF_ForUnfinishedArray()
            throws Exception {
 
       assertEOF("[");
+      assertEOF("[ \b\t\r\n\f");
       assertEOF("[null");
+      assertEOF("[null \b\t\r\n\f");
+      assertEOF("[null, \b\t\r\n\f");
    }
    /****************************************************************************
     * 
@@ -390,7 +430,7 @@ public class ParserParseUseCases extends ParserUseCasesBase {
     * 
     ***************************************************************************/
    @Test
-   public void throwsEOf_ForUnfinishedDouble()
+   public void throwsEOF_ForUnfinishedDouble()
            throws Exception {
 
       assertEOF("[1.");
@@ -427,7 +467,7 @@ public class ParserParseUseCases extends ParserUseCasesBase {
     * 
     ***************************************************************************/
    @Test
-   public void returnString_ForProperInput()
+   public void returnsString_ForProperInput()
            throws Exception {
 
       assertStringEquals("", "[\"\"]");
@@ -466,7 +506,7 @@ public class ParserParseUseCases extends ParserUseCasesBase {
     * 
     ***************************************************************************/
    @Test
-   public void throwsEOf_ForUnfinishedString()
+   public void throwsEOF_ForUnfinishedString()
            throws Exception {
 
       assertEOF("[\"");
@@ -511,394 +551,198 @@ public class ParserParseUseCases extends ParserUseCasesBase {
       assertUnexpected("[\"\\:", ':');
       assertUnexpected("[\"\\ ", ' ');
       assertUnexpected("[\"\\ś", 'ś');
-      
+
       assertUnexpected("[\"\\ux", 'x');
       assertUnexpected("[\"\\u0x", 'x');
       assertUnexpected("[\"\\u00x", 'x');
       assertUnexpected("[\"\\u000x", 'x');
    }
-//   /****************************************************************************
-//    * 
-//    ***************************************************************************/
-//   @Test
-//   public void testProperArrays() throws Exception {
-//
-//      ArrayList result;
-//      // without whitespace
-//      assertEquals(new ArrayList(), parse("[]"));
-//      result = (ArrayList) parse("[12]");
-//      assertEquals(1, result.size());
-//      assertEquals(new Long(12), result.get(0));
-//      result = (ArrayList) parse("[12,12.0E-10]");
-//      assertEquals(2, result.size());
-//      assertEquals(new Long(12), result.get(0));
-//      assertEquals(new Double(0.0000000012), result.get(1));
-//      result = (ArrayList) parse("[\"\"]");
-//      assertEquals(1, result.size());
-//      assertEquals("", result.get(0));
-//      result = (ArrayList) parse("[\"\",\"12.0E-10\"]");
-//      assertEquals(2, result.size());
-//      assertEquals("", result.get(0));
-//      assertEquals("12.0E-10", result.get(1));
-//      result = (ArrayList) parse("[true]");
-//      assertEquals(1, result.size());
-//      assertEquals(Boolean.TRUE, result.get(0));
-//      result = (ArrayList) parse("[true,true]");
-//      assertEquals(2, result.size());
-//      assertEquals(Boolean.TRUE, result.get(0));
-//      assertEquals(Boolean.TRUE, result.get(1));
-//      result = (ArrayList) parse("[false]");
-//      assertEquals(1, result.size());
-//      assertEquals(Boolean.FALSE, result.get(0));
-//      result = (ArrayList) parse("[false,false]");
-//      assertEquals(2, result.size());
-//      assertEquals(Boolean.FALSE, result.get(0));
-//      assertEquals(Boolean.FALSE, result.get(1));
-//      result = (ArrayList) parse("[null]");
-//      assertEquals(1, result.size());
-//      assertNull(result.get(0));
-//      result = (ArrayList) parse("[null,null]");
-//      assertEquals(2, result.size());
-//      assertNull(result.get(0));
-//      assertNull(result.get(1));
-//      result = (ArrayList) parse("[[]]");
-//      assertEquals(1, result.size());
-//      assertEquals(new ArrayList(), result.get(0));
-//      result = (ArrayList) parse("[[],[]]");
-//      assertEquals(2, result.size());
-//      assertEquals(new ArrayList(), result.get(0));
-//      assertEquals(new ArrayList(), result.get(1));
-//      result = (ArrayList) parse("[{}]");
-//      assertEquals(1, result.size());
-//      assertEquals(new HashMap(), result.get(0));
-//      result = (ArrayList) parse("[{},{}]");
-//      assertEquals(2, result.size());
-//      assertEquals(new HashMap(), result.get(0));
-//      assertEquals(new HashMap(), result.get(1));
-//      result = (ArrayList) parse("[[[]]]");
-//      assertEquals(1, result.size());
-//      result = (ArrayList) result.get(0);
-//      assertEquals(1, result.size());
-//      assertEquals(new ArrayList(), result.get(0));
-//
-//      // with whitespace
-//      assertEquals(new ArrayList(), parse("[ ]"));
-//      result = (ArrayList) parse("[ 12 ]");
-//      assertEquals(1, result.size());
-//      assertEquals(new Long(12), result.get(0));
-//      result = (ArrayList) parse("[ 12 , 12.0E-10 ]");
-//      assertEquals(2, result.size());
-//      assertEquals(new Long(12), result.get(0));
-//      assertEquals(new Double(0.0000000012), result.get(1));
-//      result = (ArrayList) parse("[ \"\" ]");
-//      assertEquals(1, result.size());
-//      assertEquals("", result.get(0));
-//      result = (ArrayList) parse("[ \"\" , \"12.0E-10\" ]");
-//      assertEquals(2, result.size());
-//      assertEquals("", result.get(0));
-//      assertEquals("12.0E-10", result.get(1));
-//      result = (ArrayList) parse("[ true ]");
-//      assertEquals(1, result.size());
-//      assertEquals(Boolean.TRUE, result.get(0));
-//      result = (ArrayList) parse("[ true   , true ]");
-//      assertEquals(2, result.size());
-//      assertEquals(Boolean.TRUE, result.get(0));
-//      assertEquals(Boolean.TRUE, result.get(1));
-//      result = (ArrayList) parse("[ false   ]");
-//      assertEquals(1, result.size());
-//      assertEquals(Boolean.FALSE, result.get(0));
-//      result = (ArrayList) parse("[ false  , false ]");
-//      assertEquals(2, result.size());
-//      assertEquals(Boolean.FALSE, result.get(0));
-//      assertEquals(Boolean.FALSE, result.get(1));
-//      result = (ArrayList) parse("[   null ]");
-//      assertEquals(1, result.size());
-//      assertNull(result.get(0));
-//      result = (ArrayList) parse("[ null , null ]");
-//      assertEquals(2, result.size());
-//      assertNull(result.get(0));
-//      assertNull(result.get(1));
-//      result = (ArrayList) parse("[ [ ] ]");
-//      assertEquals(1, result.size());
-//      assertEquals(new ArrayList(), result.get(0));
-//      result = (ArrayList) parse("[   [   ] , [ ] ]");
-//      assertEquals(2, result.size());
-//      assertEquals(new ArrayList(), result.get(0));
-//      assertEquals(new ArrayList(), result.get(1));
-//      result = (ArrayList) parse("[ { } ]");
-//      assertEquals(1, result.size());
-//      assertEquals(new HashMap(), result.get(0));
-//      result = (ArrayList) parse("[ {  } , {  } ]");
-//      assertEquals(2, result.size());
-//      assertEquals(new HashMap(), result.get(0));
-//      assertEquals(new HashMap(), result.get(1));
-//      result = (ArrayList) parse("[  [ [    ] ]   ]");
-//      assertEquals(1, result.size());
-//      result = (ArrayList) result.get(0);
-//      assertEquals(1, result.size());
-//      assertEquals(new ArrayList(), result.get(0));
-//
-//   }
-//
-//   /****************************************************************************
-//    * 
-//    ***************************************************************************/
-//   @Test
-//   public void testErronousArrays() throws Exception {
-//
-//      //nulll
-//      assertUnexpected("[,", ',');
-//      assertUnexpected("[ :", ':');
-//      assertUnexpected("[ }", '}');
-//      assertUnexpected("[ 1,]", ']');
-//   }
-//
-//   /****************************************************************************
-//    * 
-//    ***************************************************************************/
-//   @Test
-//   public void testEOFArrays() throws Exception {
-//
-//      assertEOF("[");
-//      assertEOF("[2");
-//      assertEOF("[2,");
-//   }
-//   /****************************************************************************
-//    * 
-//    ***************************************************************************/
-//   @Test
-//   public void testDuplicatedKey() throws Exception {
-//
-//      try {
-//         parse("{\"a\":1,\"a\":2}");
-//         fail();
-//      } catch (final DuplicatedKeyException e) {
-//         assertEquals("a", e.key);
-//      }
-//   }
-//
-//   /****************************************************************************
-//    * 
-//    ***************************************************************************/
-//   @Test
-//   public void testProperObjects() throws Exception {
-//
-//      HashMap result;
-//      // without whitespace
-//      assertEquals(new HashMap(), parse("{}"));
-//      result = (HashMap) parse("{\"abc\":true}");
-//      assertEquals(1, result.size());
-//      assertEquals(Boolean.TRUE, result.get("abc"));
-//      result = (HashMap) parse("{\"abc\":false}");
-//      assertEquals(1, result.size());
-//      assertEquals(Boolean.FALSE, result.get("abc"));
-//      result = (HashMap) parse("{\"abc\":null}");
-//      assertEquals(1, result.size());
-//      assertNull(result.get("abc"));
-//      result = (HashMap) parse("{\"abc\":12}");
-//      assertEquals(1, result.size());
-//      assertEquals(new Long(12), result.get("abc"));
-//      result = (HashMap) parse("{\"abc\":-12.0e10}");
-//      assertEquals(1, result.size());
-//      assertEquals(new Double(-120000000000.0), result.get("abc"));
-//      result = (HashMap) parse("{\"abc\":\"\"}");
-//      assertEquals(1, result.size());
-//      assertEquals("", result.get("abc"));
-//      result = (HashMap) parse("{\"\":\"\"}");
-//      assertEquals(1, result.size());
-//      assertEquals("", result.get(""));
-//      result = (HashMap) parse("{\"abc\":{}}");
-//      assertEquals(1, result.size());
-//      assertEquals(new HashMap(), result.get("abc"));
-//      result = (HashMap) parse("{\"abc\":[]}");
-//      assertEquals(1, result.size());
-//      assertEquals(new ArrayList(), result.get("abc"));
-//      result = (HashMap) parse("{\"abc\":true,\"def\":true}");
-//      assertEquals(2, result.size());
-//      assertEquals(Boolean.TRUE, result.get("abc"));
-//      assertEquals(Boolean.TRUE, result.get("def"));
-//      result = (HashMap) parse("{\"abc\":false,\"def\":false}");
-//      assertEquals(2, result.size());
-//      assertEquals(Boolean.FALSE, result.get("abc"));
-//      assertEquals(Boolean.FALSE, result.get("def"));
-//      result = (HashMap) parse("{\"abc\":null,\"def\":null}");
-//      assertEquals(2, result.size());
-//      assertNull(result.get("abc"));
-//      assertNull(result.get("def"));
-//      result = (HashMap) parse("{\"abc\":12,\"def\":12}");
-//      assertEquals(2, result.size());
-//      assertEquals(new Long(12), result.get("abc"));
-//      assertEquals(new Long(12), result.get("def"));
-//      result = (HashMap) parse("{\"abc\":-12.0e10,\"def\":-12.0e10}");
-//      assertEquals(2, result.size());
-//      assertEquals(new Double(-120000000000.0), result.get("abc"));
-//      assertEquals(new Double(-120000000000.0), result.get("def"));
-//      result = (HashMap) parse("{\"abc\":\"\",\"def\":\"\"}");
-//      assertEquals(2, result.size());
-//      assertEquals("", result.get("abc"));
-//      assertEquals("", result.get("def"));
-//      result = (HashMap) parse("{\"abc\":{},\"def\":{}}");
-//      assertEquals(2, result.size());
-//      assertEquals(new HashMap(), result.get("abc"));
-//      assertEquals(new HashMap(), result.get("def"));
-//      result = (HashMap) parse("{\"abc\":[],\"def\":[]}");
-//      assertEquals(2, result.size());
-//      assertEquals(new ArrayList(), result.get("abc"));
-//      assertEquals(new ArrayList(), result.get("def"));
-//
-//      // with whitespace
-//      assertEquals(new HashMap(), parse("{  }"));
-//      result = (HashMap) parse("{ \"abc\" : true }");
-//      assertEquals(1, result.size());
-//      assertEquals(Boolean.TRUE, result.get("abc"));
-//      result = (HashMap) parse("{ \"abc\" : false }");
-//      assertEquals(1, result.size());
-//      assertEquals(Boolean.FALSE, result.get("abc"));
-//      result = (HashMap) parse("{  \"abc\"    :  null  }");
-//      assertEquals(1, result.size());
-//      assertNull(result.get("abc"));
-//      result = (HashMap) parse("{ \"abc\"  :  12 }");
-//      assertEquals(1, result.size());
-//      assertEquals(new Long(12), result.get("abc"));
-//      result = (HashMap) parse("{ \"abc\" : -12.0e10 }");
-//      assertEquals(1, result.size());
-//      assertEquals(new Double(-120000000000.0), result.get("abc"));
-//      result = (HashMap) parse("{ \"abc\" : \"\" }");
-//      assertEquals(1, result.size());
-//      assertEquals("", result.get("abc"));
-//      result = (HashMap) parse("{ \"\" :   \"\" }");
-//      assertEquals(1, result.size());
-//      assertEquals("", result.get(""));
-//      result = (HashMap) parse("{ \"abc\" : {   } \n\t}");
-//      assertEquals(1, result.size());
-//      assertEquals(new HashMap(), result.get("abc"));
-//      result = (HashMap) parse("{ \"abc\": [ ] }");
-//      assertEquals(1, result.size());
-//      assertEquals(new ArrayList(), result.get("abc"));
-//      result = (HashMap) parse("{  \"abc\"  : true ,\r\n\"def\" : true }");
-//      assertEquals(2, result.size());
-//      assertEquals(Boolean.TRUE, result.get("abc"));
-//      assertEquals(Boolean.TRUE, result.get("def"));
-//      result = (HashMap) parse("{ \"abc\" : false , \"def\" : false }");
-//      assertEquals(2, result.size());
-//      assertEquals(Boolean.FALSE, result.get("abc"));
-//      assertEquals(Boolean.FALSE, result.get("def"));
-//      result = (HashMap) parse("{ \"abc\" : null , \"def\": null }");
-//      assertEquals(2, result.size());
-//      assertNull(result.get("abc"));
-//      assertNull(result.get("def"));
-//      result = (HashMap) parse("{ \"abc\" : 12 , \"def\"  : 12 }");
-//      assertEquals(2, result.size());
-//      assertEquals(new Long(12), result.get("abc"));
-//      assertEquals(new Long(12), result.get("def"));
-//      result = (HashMap) parse("{  \"abc\"\r\n: -12.0e10 , \"def\" : -12.0e10  }");
-//      assertEquals(2, result.size());
-//      assertEquals(new Double(-120000000000.0), result.get("abc"));
-//      assertEquals(new Double(-120000000000.0), result.get("def"));
-//      result = (HashMap) parse("{ \"abc\" : \"\",\r\n\t\"def\" : \"\" }");
-//      assertEquals(2, result.size());
-//      assertEquals("", result.get("abc"));
-//      assertEquals("", result.get("def"));
-//      result = (HashMap) parse("{ \"abc\" : { } , \"def\" :  {  } }");
-//      assertEquals(2, result.size());
-//      assertEquals(new HashMap(), result.get("abc"));
-//      assertEquals(new HashMap(), result.get("def"));
-//      result = (HashMap) parse("{ \"abc\"  : [\r\n], \"def\" : [\t] }");
-//      assertEquals(2, result.size());
-//      assertEquals(new ArrayList(), result.get("abc"));
-//      assertEquals(new ArrayList(), result.get("def"));
-//      parse(example); // parses properly
-//   }
-//
-//   /****************************************************************************
-//    * 
-//    ***************************************************************************/
-//   @Test
-//   public void testErronousObjects() throws Exception {
-//
-//      //nulll
-//      assertUnexpected("{,", ',');
-//      assertUnexpected("{ :", ':');
-//      assertUnexpected("{ ]", ']');
-//      assertUnexpected("{ \"a\":}", '}');
-//      assertUnexpected("{ \"a\": \"b\",}", '}');
-//   }
-//
-//   /****************************************************************************
-//    * 
-//    ***************************************************************************/
-//   @Test
-//   public void testEOFObjects() throws Exception {
-//
-//      //nulll
-//      assertEOF("{");
-//      assertEOF("");
-//      assertEOF("{ \"a\":");
-//      assertEOF("{ \"a\": \"b\",");
-//   }
-//
-//   /****************************************************************************
-//    * 
-//    ***************************************************************************/
-//   @Test
-//   public void testNonJSON() throws IOException {
-//      
-//      assertUnexpected("xyz", 'x');
-//   }
-//   /****************************************************************************
-//    * 
-//    ***************************************************************************/
-//   @Test
-//   public void testParseFormRawSocket() throws Exception {
-//
-//      new Thread() {
-//
-//         @Override
-//         public void run() {
-//            try {
-//               final ServerSocket ss = new ServerSocket(60400);
-//               final Socket s = ss.accept();
-//               final Writer out = new OutputStreamWriter(s.getOutputStream(), "UTF-8");
-//               final InputStream in = s.getInputStream();
-//               out.write("{\"ip\": \"8.8.8.8\"}");
-//               out.flush();
-//               in.read();
-//               out.write("{\"ip\": \"8.8.8.8\"}");
-//               out.flush();
-//               out.close();
-//               in.close();
-//            } catch (final Exception e) {
-//               throw new RuntimeException(e);
-//            }
-//         }
-//
-//      }.start();
-//
-//      final Socket s = new Socket("localhost", 60400);
-//      final Reader in = new InputStreamReader(s.getInputStream(), "UTF-8");
-//      final OutputStream out = s.getOutputStream();
-//      HashMap o = null;
-//      o = (HashMap) this.p.parse(in);
-//      out.write(1);
-//      o = (HashMap) this.p.parse(in);
-//      in.close();
-//      out.close();
-//   }
    /****************************************************************************
     * 
     ***************************************************************************/
-   final static String example = "{"
-           + "	\"abcde\":{"
-           + "	\"interval\":5,"
-           + "	\"config\":true,"
-           + "	\"treshold\":\"LOW\"},"
-           + "	\"jhjhjhj\":[{\"module\":\"main\",\"type\":\"ACTIVE\",\"version\":2.2}],"
-           + "	\"array\":[{"
-           + "	\"id\":\"kldsjfkldejgfklejgfklrejtljrktljlrk\",\"value\":13},{"
-           + "	\"id\":\"lk;lk;lk;lklk;lk\",\"value\":13}],\"alarms\":[{"
-           + "	\"id\":\"kjkljkljklj\",\"state\":\"SET\",\"level\":\"16\",\"message\":\"Overheat\"}],"
-           + "	\"array2\": [-12.0e10, -120000000000.0, 123243324.43434, 13, -12.0e10, -120000000000.0,"
-           + " 123243324.43434, 13,-12.0e10, -120000000000.0, 123243324.43434, 13,-12.0e10,"
-           + " -120000000000.0, 123243324.43434, 13]}";
+   @Test
+   public void returnList_ForProperInput()
+           throws Exception {
 
+      assertEmptyList("[]");
+      assertEmptyList("[ \t\r\n\f\b]");
+
+      assertListquals(asList(new ArrayList()), "[[]]");
+      assertListquals(asList(new ArrayList()), "[ \t\r\n\f\b[] \t\r\n\f\b]");
+      assertListquals(asList(new HashMap()), "[{}]");
+      assertListquals(asList(new HashMap()), "[ \t\r\n\f\b{} \t\r\n\f\b]");
+      assertListquals(asList(Boolean.TRUE), "[true]");
+      assertListquals(asList(Boolean.TRUE), "[ \t\r\n\f\btrue \t\r\n\f\b]");
+
+      assertListquals(asList(new ArrayList(), new ArrayList()), "[[],[]]");
+      assertListquals(asList(new ArrayList(), new ArrayList()), "[ \t\r\n\f\b[] \t\r,\n\f\b[]]");
+      assertListquals(asList(new HashMap(), new HashMap()), "[{},{}]");
+      assertListquals(asList(new HashMap(), new HashMap()), "[ \t\r\n\f\b{} \t\r,\n\f\b{}]");
+      assertListquals(asList(Boolean.TRUE, Boolean.FALSE), "[true, false]");
+      assertListquals(asList(Boolean.TRUE, Boolean.FALSE), "[ \t\r\n\f\btrue \t\r,false\n\f\b]");
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void throwsUnexpected_ForUnexpectedCharacterInArray()
+           throws Exception {
+
+      assertUnexpected("]", ']');
+      assertUnexpected("[}", '}');
+
+      assertUnexpected("[,]", ',');
+      assertUnexpected("[ ,]", ',');
+      assertUnexpected("[true,]", ']');
+      assertUnexpected("[true, ]", ']');
+      assertUnexpected("[true,,true]", ',');
+      assertUnexpected("[true, ,true]", ',');
+      assertUnexpected("[true true]", 't');
+      assertUnexpected("[true ; true]", ';');
+      assertUnexpected("[true : true]", ':');
+      assertUnexpected("[true | true]", '|');
+      assertUnexpected("[true ~ true]", '~');
+      assertUnexpected("[true ` true]", '`');
+      assertUnexpected("[true ! true]", '!');
+      assertUnexpected("[true @ true]", '@');
+      assertUnexpected("[true # true]", '#');
+      assertUnexpected("[true $ true]", '$');
+      assertUnexpected("[true % true]", '%');
+      assertUnexpected("[true ^ true]", '^');
+      assertUnexpected("[true & true]", '&');
+      assertUnexpected("[true * true]", '*');
+      assertUnexpected("[true ( true]", '(');
+      assertUnexpected("[true ) true]", ')');
+      assertUnexpected("[true - true]", '-');
+      assertUnexpected("[true _ true]", '_');
+      assertUnexpected("[true = true]", '=');
+      assertUnexpected("[true + true]", '+');
+      assertUnexpected("[true \\ true]", '\\');
+      assertUnexpected("[true \' true]", '\'');
+      assertUnexpected("[true \" true]", '\"');
+      assertUnexpected("[true / true]", '/');
+      assertUnexpected("[true ? true]", '?');
+      assertUnexpected("[true . true]", '.');
+      assertUnexpected("[true < true]", '<');
+      assertUnexpected("[true > true]", '>');
+      assertUnexpected("[true } true]", '}');
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void returnsMap_ForProperInput()
+           throws Exception {
+
+      assertMapEquals(asMap("a", "b"), "{\"a\":\"b\"}");
+      assertMapEquals(asMap("a", Boolean.TRUE), "{\"a\":true}");
+      assertMapEquals(asMap("a", Boolean.FALSE), "{\"a\":false}");
+      assertMapEquals(asMap("a", null), "{\"a\":null}");
+      assertMapEquals(asMap("a", new HashMap()), "{\"a\":{}}");
+      assertMapEquals(asMap("a", new ArrayList()), "{\"a\":[]}");
+      assertMapEquals(asMap("a", new Long(1)), "{\"a\":1}");
+      assertMapEquals(asMap("a", new Long(-1)), "{\"a\":-1}");
+      assertMapEquals(asMap("a", new Double(-1.0)), "{\"a\":-1.0}");
+      assertMapEquals(asMap("a", new Long(0)), "{\"a\":0}");
+      assertMapEquals(asMap("a", new Long(0), "b", "abc"), "{\"a\":0, \"b\":\"abc\"}");
+      assertMapEquals(asMap("a", new Long(0), "b", "abc"), "{ \t\"a\"  :\t\n0\n\r, \f\n\"b\" : \"abc\"\n\n}");
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void throwsDuplicatedKey_forDuplicatedKeyInMap() throws Exception {
+
+      try {
+         parse("{\"a\":1,\"a\":2}");
+         fail();
+      } catch (final DuplicatedKeyException e) {
+         assertEquals("a", e.key);
+      }
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void throwsUnexpected_ForUnexpectedCharacterInObject()
+           throws Exception {
+
+      assertUnexpected("}", '}');
+      assertUnexpected("{]", ']');
+
+      assertUnexpected("{,}", ',');
+      assertUnexpected("{ ,}", ',');
+      assertUnexpected("{abc}", 'a');
+      assertUnexpected("{\"abc\",}", '}');
+      assertUnexpected("{\"abc\", }", '}');
+      assertUnexpected("{\"abc\",,\"abc\"}", ',');
+      assertUnexpected("{\"abc\", ,\"abc\"}", ',');
+      assertUnexpected("{\"abc\" \"abc\"}", '\"');
+      assertUnexpected("{\"abc\" ; \"abc\"}", ';');
+      assertUnexpected("{\"abc\" | \"abc\"}", '|');
+      assertUnexpected("{\"abc\" ~ \"abc\"}", '~');
+      assertUnexpected("{\"abc\" ` \"abc\"}", '`');
+      assertUnexpected("{\"abc\" ! \"abc\"}", '!');
+      assertUnexpected("{\"abc\" @ \"abc\"}", '@');
+      assertUnexpected("{\"abc\" # \"abc\"}", '#');
+      assertUnexpected("{\"abc\" $ \"abc\"}", '$');
+      assertUnexpected("{\"abc\" % \"abc\"}", '%');
+      assertUnexpected("{\"abc\" ^ \"abc\"}", '^');
+      assertUnexpected("{\"abc\" & \"abc\"}", '&');
+      assertUnexpected("{\"abc\" * \"abc\"}", '*');
+      assertUnexpected("{\"abc\" ( \"abc\"}", '(');
+      assertUnexpected("{\"abc\" ) \"abc\"}", ')');
+      assertUnexpected("{\"abc\" - \"abc\"}", '-');
+      assertUnexpected("{\"abc\" _ \"abc\"}", '_');
+      assertUnexpected("{\"abc\" = \"abc\"}", '=');
+      assertUnexpected("{\"abc\" + \"abc\"}", '+');
+      assertUnexpected("{\"abc\" \\ \"abc\"}", '\\');
+      assertUnexpected("{\"abc\" \' \"abc\"}", '\'');
+      assertUnexpected("{\"abc\" \" \"abc\"}", '\"');
+      assertUnexpected("{\"abc\" / \"abc\"}", '/');
+      assertUnexpected("{\"abc\" ? \"abc\"}", '?');
+      assertUnexpected("{\"abc\" . \"abc\"}", '.');
+      assertUnexpected("{\"abc\" < \"abc\"}", '<');
+      assertUnexpected("{\"abc\" > \"abc\"}", '>');
+      assertUnexpected("{\"abc\" } \"abc\"}", '}');
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   @Test
+   public void worksProperly_WhenInvokedOverSocket() throws Exception {
+
+      new Thread() {
+
+         @Override
+         public void run() {
+            try {
+               final ServerSocket ss = new ServerSocket(60400);
+               final Socket s = ss.accept();
+               final Writer out = new OutputStreamWriter(s.getOutputStream(), "UTF-8");
+               final InputStream in = s.getInputStream();
+               out.write("{\"ip\": \"8.8.8.8\"}");
+               out.flush();
+               in.read();
+               out.write("{\"ip\": \"8.8.8.8\"}");
+               out.flush();
+               out.close();
+               in.close();
+            } catch (final Exception e) {
+               throw new RuntimeException(e);
+            }
+         }
+
+      }.start();
+
+      final Socket s = new Socket("localhost", 60400);
+      final Reader in = new InputStreamReader(s.getInputStream(), "UTF-8");
+      final OutputStream out = s.getOutputStream();
+      HashMap o = null;
+      o = (HashMap) new Parser().parse(in);
+      out.write(1);
+      o = (HashMap) new Parser().parse(in);
+      in.close();
+      out.close();
+   }
 }

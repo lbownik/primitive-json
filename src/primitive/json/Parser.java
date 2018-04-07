@@ -355,6 +355,7 @@ public final class Parser {
       if (currentChar != ']') {
          loop:
          for (;;) {
+            currentChar = consumeWhitespace(currentChar);
             result.add(parseValue(currentChar));
             currentChar = this.recentChar;
             currentChar = consumeWhitespace(currentChar);
@@ -637,7 +638,8 @@ public final class Parser {
     ***************************************************************************/
    private static boolean isWhitespace(final int chr) {
 
-      return chr == ' ' | chr == '\t' | chr == '\n' | chr == '\r';
+      return chr == ' ' | chr == '\b' | chr == '\f' | chr == '\n' | chr == '\r'
+              | chr == '\t';
    }
 
    /****************************************************************************
