@@ -14,6 +14,7 @@
 //limitations under the License.
 //------------------------------------------------------------------------------
 package primitive.json;
+
 import org.junit.Ignore;
 
 /*******************************************************************************
@@ -22,20 +23,24 @@ import org.junit.Ignore;
 @Ignore
 public class ParserPerformanceTest {
 
-   
    /****************************************************************************
     * 
     ***************************************************************************/
    public static void main(String[] args) throws Exception {
 
-      //test(defaultJson);
-      test(emptyStringsJson);
+      System.out.println("PERFORMANCE TESTS");
+      System.out.println("Number of iterations per test:" + iterations);
+      System.out.println("-----------------------------------------------");
+      test("Mixed", defaultJson);
+      test("Array of \"\"", emptyStringsJson);
+      test("Array of strings", arrayOfStrings);
+      test("Array of numbers", arrayOfNumbers);
    }
-   
+
    /****************************************************************************
     * 
     ***************************************************************************/
-   static void test(final String json) throws Exception {
+   static void test(final String name, final String json) throws Exception {
 
       final long n = iterations;
       final Parser p = new Parser(15, 10, 10);
@@ -45,12 +50,14 @@ public class ParserPerformanceTest {
       }
       final long duration = System.currentTimeMillis() - begin;
       final long speed = 1000 * n / duration;
+      System.out.print(name);
+      System.out.print(" (iter./s): ");
       System.out.println(speed);
    }
    /****************************************************************************
     * 
     ***************************************************************************/
-   final static long iterations = 10000000;
+   final static long iterations = 1000000;
    final static String defaultJson = "{"
            + "	\"abcde\":{"
            + "	\"interval\":5,"
@@ -67,5 +74,8 @@ public class ParserPerformanceTest {
    final static String emptyStringsJson = "[\"\", \"\", \"\", \"\", \"\", \"\","
            + " \"\", \"\", \"\", \"\", \"\","
            + " \"\", \"\", \"\"]";
-
+   final static String arrayOfStrings = "[\"abctą\", \"dfterf\\r\\n\", "
+           + "\"tksmsd\t\", \"    \", \"12344556gf\", \"kfjgkfj\","
+           + " \"\u12AA\u1234\", \"#$%$^%^%%#\", \"???????\", \"\\\\\\\\S\"]";
+   final static String arrayOfNumbers = "[1234, 57563, 2324.45454, 10e-12, 34354e+10, 123243.54534]";
 }

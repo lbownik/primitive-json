@@ -492,6 +492,7 @@ public class ParserParseUseCases extends ParserUseCasesBase {
       assertStringEquals("/", "[\"\\/\"]");
 
       assertStringEquals("abcśżą", "[\"abcśżą\"]");
+      assertStringEquals("1234567890", "[\"1234567890\"]");
       assertStringEquals("!@#$%^&*()_-+=~`.,;:'[]{}|/?", "[\"!@#$%^&*()_-+=~`.,;:'[]{}|/?\"]");
       assertStringEquals("ą", "[\"\\u0105\"]");
       assertStringEquals("ą", "[\"\\u0105\"]");
@@ -673,8 +674,8 @@ public class ParserParseUseCases extends ParserUseCasesBase {
       assertUnexpected("{,}", ',');
       assertUnexpected("{ ,}", ',');
       assertUnexpected("{abc}", 'a');
-      assertUnexpected("{\"abc\",}", '}');
-      assertUnexpected("{\"abc\", }", '}');
+      assertUnexpected("{\"abc\"}", '}');
+      assertUnexpected("{\"abc\": }", '}');
       assertUnexpected("{\"abc\",,\"abc\"}", ',');
       assertUnexpected("{\"abc\", ,\"abc\"}", ',');
       assertUnexpected("{\"abc\" \"abc\"}", '\"');
@@ -705,44 +706,5 @@ public class ParserParseUseCases extends ParserUseCasesBase {
       assertUnexpected("{\"abc\" < \"abc\"}", '<');
       assertUnexpected("{\"abc\" > \"abc\"}", '>');
       assertUnexpected("{\"abc\" } \"abc\"}", '}');
-   }
-   /****************************************************************************
-    * 
-    ***************************************************************************/
-   @Test
-   public void worksProperly_WhenInvokedOverSocket() throws Exception {
-
-      new Thread() {
-
-         @Override
-         public void run() {
-            try {
-               final ServerSocket ss = new ServerSocket(60400);
-               final Socket s = ss.accept();
-               final Writer out = new OutputStreamWriter(s.getOutputStream(), "UTF-8");
-               final InputStream in = s.getInputStream();
-               out.write("{\"ip\": \"8.8.8.8\"}");
-               out.flush();
-               in.read();
-               out.write("{\"ip\": \"8.8.8.8\"}");
-               out.flush();
-               out.close();
-               in.close();
-            } catch (final Exception e) {
-               throw new RuntimeException(e);
-            }
-         }
-
-      }.start();
-
-      final Socket s = new Socket("localhost", 60400);
-      final Reader in = new InputStreamReader(s.getInputStream(), "UTF-8");
-      final OutputStream out = s.getOutputStream();
-      HashMap o = null;
-      o = (HashMap) new Parser().parse(in);
-      out.write(1);
-      o = (HashMap) new Parser().parse(in);
-      in.close();
-      out.close();
    }
 }
