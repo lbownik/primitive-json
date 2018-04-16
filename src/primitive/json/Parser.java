@@ -347,8 +347,8 @@ public final class Parser {
    private ArrayList<Object> parseArray() throws IOException {
 
       final ArrayList<Object> result = new ArrayList<>(this.initialVectorSize);
-      int currentChar = read();
-      currentChar = consumeWhitespace(currentChar);
+
+      int currentChar = consumeWhitespace(read());
       if (currentChar == -1) {
          throw new EOFException();
       }
@@ -632,22 +632,13 @@ public final class Parser {
 
       return chr >= '0' & chr <= '9';
    }
-
-   /****************************************************************************
-    * 
-    ***************************************************************************/
-   private static boolean isWhitespace(final int chr) {
-
-      return chr == ' ' | chr == '\b' | chr == '\f' | chr == '\n' | chr == '\r'
-              | chr == '\t';
-   }
-
    /****************************************************************************
     * 
     ***************************************************************************/
    private int consumeWhitespace(int chr) throws IOException {
 
-      while (isWhitespace(chr)) {
+      while (chr == ' ' | chr == '\b' | chr == '\f' | chr == '\n' | chr == '\r'
+              | chr == '\t') {
          chr = read();
       }
       return chr;

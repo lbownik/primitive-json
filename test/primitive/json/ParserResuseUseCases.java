@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 
 /*******************************************************************************
  *
- * @author
+ * @author lukasz.bownik@gmail.com
  ******************************************************************************/
 public class ParserResuseUseCases extends ParserUseCasesBase {
 

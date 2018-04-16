@@ -29,12 +29,14 @@ public class ParserPerformanceTest {
    public static void main(String[] args) throws Exception {
 
       System.out.println("PERFORMANCE TESTS");
-      System.out.println("Number of iterations per test:" + iterations);
+      System.out.println("Number of iterations per test:" + iterations/1000000 + "M");
       System.out.println("-----------------------------------------------");
-      test("Mixed", defaultJson);
-      test("Array of \"\"", emptyStringsJson);
-      test("Array of strings", arrayOfStrings);
-      test("Array of numbers", arrayOfNumbers);
+//      test("Mixed", defaultJson);
+//      test("Array of \"\"", emptyStringsJson);
+//      test("Array of strings", arrayOfStrings);
+//      test("Array of numbers", arrayOfNumbers);
+//      test("Array of nulls", arrayOfNumbers);
+      test("Array of nulls", arrayOfNulls);
    }
 
    /****************************************************************************
@@ -49,15 +51,16 @@ public class ParserPerformanceTest {
          p.parse(json);
       }
       final long duration = System.currentTimeMillis() - begin;
-      final long speed = 1000 * n / duration;
+      final long speed = 1000 * n / duration/1000;
       System.out.print(name);
       System.out.print(" (iter./s): ");
-      System.out.println(speed);
+      System.out.print(speed);
+      System.out.println("K");
    }
    /****************************************************************************
     * 
     ***************************************************************************/
-   final static long iterations = 1000000;
+   final static long iterations = 100000000;
    final static String defaultJson = "{"
            + "	\"abcde\":{"
            + "	\"interval\":5,"
@@ -78,4 +81,5 @@ public class ParserPerformanceTest {
            + "\"tksmsd\t\", \"    \", \"12344556gf\", \"kfjgkfj\","
            + " \"\u12AA\u1234\", \"#$%$^%^%%#\", \"???????\", \"\\\\\\\\S\"]";
    final static String arrayOfNumbers = "[1234, 57563, 2324.45454, 10e-12, 34354e+10, 123243.54534]";
+   final static String arrayOfNulls = "[null, null, null, null, null, null, null, null, null, null]";
 }

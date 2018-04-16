@@ -76,7 +76,7 @@ public final class Generator {
          write((ArrayList) value, out);
          return;
       }
-      throw new IllegalArgumentException("Only Hashtable or ArrayList accepted");
+      throw new IllegalArgumentException("Only HashMap or ArrayList accepted");
    }
 
    /****************************************************************************

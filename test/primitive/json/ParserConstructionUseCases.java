@@ -19,9 +19,9 @@ import org.junit.Test;
 
 /*******************************************************************************
  *
- * @author
+ * @author lukasz.bownik@gmail.com
  ******************************************************************************/
-public class ParserConstructionUsecases extends ParserUseCasesBase {
+public class ParserConstructionUseCases extends ParserUseCasesBase {
 
    /****************************************************************************
     * 
