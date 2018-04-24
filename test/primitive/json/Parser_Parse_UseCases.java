@@ -30,7 +30,7 @@ import static org.junit.Assert.fail;
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
 @SuppressWarnings("rawtypes")
-public class ParserParseUseCases extends ParserUseCasesBase {
+public class Parser_Parse_UseCases extends Parser_UseCasesBase {
 
    /****************************************************************************
     * 

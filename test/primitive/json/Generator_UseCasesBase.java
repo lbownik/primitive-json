@@ -18,7 +18,7 @@ package primitive.json;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -27,7 +27,7 @@ import static org.junit.Assert.fail;
  *
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
-public abstract class GeneratorUseCasesBase {
+public abstract class Generator_UseCasesBase {
 
    /****************************************************************************
     * 
@@ -76,7 +76,7 @@ public abstract class GeneratorUseCasesBase {
    /****************************************************************************
     * 
     ***************************************************************************/
-   protected void assertListEquals(final String expected, final ArrayList list)
+   protected void assertListEquals(final String expected, final List list)
            throws Exception {
 
       final Generator g = new Generator();

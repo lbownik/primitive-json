@@ -28,7 +28,7 @@ import static org.junit.Assert.fail;
  *
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
-public abstract class ParserUseCasesBase {
+public abstract class Parser_UseCasesBase {
    /****************************************************************************
     * 
     ***************************************************************************/

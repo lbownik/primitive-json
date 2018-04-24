@@ -25,7 +25,7 @@ import org.junit.Ignore;
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
 @Ignore
-public class GeneratorPerformanceTest {
+public class Generator_PerformanceTest {
 
    /****************************************************************************
     * 

@@ -21,7 +21,7 @@ import org.junit.Ignore;
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
 @Ignore
-public class ParserPerformanceTest {
+public class Parser_PerformanceTest {
 
    /****************************************************************************
     * 
@@ -60,7 +60,7 @@ public class ParserPerformanceTest {
    /****************************************************************************
     * 
     ***************************************************************************/
-   final static long iterations = 100000000;
+   final static long iterations = 10000000;
    final static String defaultJson = "{"
            + "	\"abcde\":{"
            + "	\"interval\":5,"

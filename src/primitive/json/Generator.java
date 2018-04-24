@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /*******************************************************************************
@@ -58,7 +59,7 @@ public final class Generator {
     * @param out appendable object.
     * @throws IOException if woutput error occurs.
     * @throws NullPointerException if value or out == null.
-    * @throws IllegalArgumentException if value is not HashMap or ArrayList.
+    * @throws IllegalArgumentException if value is not Map or List.
     ***************************************************************************/
    public void write(final Object value, final Appendable out)
            throws IOException {
@@ -67,16 +68,15 @@ public final class Generator {
          throw new NullPointerException("value");
       }
 
-      final Class cls = value.getClass();
-      if (cls == HashMap.class) {
-         write((HashMap) value, out);
+      if (Map.class.isInstance(value)) {
+         write((Map) value, out);
          return;
       }
-      if (cls == ArrayList.class) {
-         write((ArrayList) value, out);
+      if (List.class.isInstance(value)) {
+         write((List) value, out);
          return;
       }
-      throw new IllegalArgumentException("Only HashMap or ArrayList accepted");
+      throw new IllegalArgumentException("Only Map or List accepted");
    }
 
    /****************************************************************************
@@ -101,12 +101,12 @@ public final class Generator {
    /****************************************************************************
     * Encode an ArrayList into JSON text and write it to out.
     * 
-    * @param value vector.
+    * @param value list.
     * @param out appendable object.
-    * @throws IOException if woutput error occurs.
+    * @throws IOException if output error occurs.
     * @throws NullPointerException if value or out == null.
     ***************************************************************************/
-   public void write(final ArrayList value, final Appendable out)
+   public void write(final List value, final Appendable out)
            throws IOException {
 
       if (value == null) {
@@ -125,13 +125,13 @@ public final class Generator {
    }
 
    /****************************************************************************
-    * Encode an ArrayList into JSON text.
+    * Encode an List into JSON text.
     * 
-    * @param value vector.
+    * @param value list.
     * @return JSON string.
     * @throws NullPointerException if value == null.
     ***************************************************************************/
-   public String toString(final ArrayList value) {
+   public String toString(final List value) {
 
       try {
          final Appendable wr = new StringBuilder(16);
@@ -150,7 +150,7 @@ public final class Generator {
     * @throws IOException if woutput error occurs.
     * @throws NullPointerException if value or out == null.
     ***************************************************************************/
-   public void write(final HashMap value, final Appendable out)
+   public void write(final Map value, final Appendable out)
            throws IOException {
 
       if (value == null) {
@@ -181,11 +181,11 @@ public final class Generator {
    /****************************************************************************
     * Encode a HashMap into JSON text.
     * 
-    * @param value hashtable.
+    * @param value map.
     * @return JSON string.
     * @throws NullPointerException if value == null.
     ***************************************************************************/
-   public String toString(final HashMap value) {
+   public String toString(final Map value) {
 
       try {
          final Appendable wr = new StringBuilder(16);
@@ -245,12 +245,12 @@ public final class Generator {
          out.append(((Boolean) value).toString());
          return;
       }
-      if (cls == HashMap.class) {
-         write((HashMap) value, out);
+      if (Map.class.isInstance(value)) {
+         write((Map) value, out);
          return;
       }
-      if (cls == ArrayList.class) {
-         write((ArrayList) value, out);
+      if (List.class.isInstance(value)) {
+         write((List) value, out);
          return;
       }
       out.append('\"');
@@ -264,10 +264,6 @@ public final class Generator {
    private static void writeEscaped(final String s, final Appendable out)
            throws IOException {
 
-      if (s == null) {
-         out.append("null");
-         return;
-      }
       final int length = s.length();
       for (int i = 0; i < length; i++) {
          final char ch = s.charAt(i);
@@ -365,7 +361,7 @@ public final class Generator {
          out.append('0');
          return;
       }
-      for (int i = 0; i < 14 & decimal != 0.0; i++) {
+      for (int i = 0; i < 14; i++) {
          decimal *= 10.0;
          out.append((char)('0' + (int) decimal));
          decimal -= (int) decimal;

@@ -178,79 +178,53 @@ public final class Parser {
             return null;
       }
    }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private void expect(final char expectedChar) throws IOException {
 
+      final int chr = read();
+      if (chr == -1) {
+         throw new EOFException();
+      }
+      if (chr != expectedChar) {
+         throwUnexpected(chr);
+      }
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private int expectEndOfValue() throws IOException {
+
+      int chr = read();
+      if (!isEndOfValue(chr)) {
+         throwUnexpected(chr);
+      }
+      return chr;
+   }
    /****************************************************************************
     * 
     ***************************************************************************/
    private Boolean parseTrue() throws IOException {
 
-      int currentChar = read();
-      if (currentChar == -1) {
-         throw new EOFException();
-      }
-      if (currentChar != 'r') {
-         throwUnexpected(currentChar);
-      }
-      currentChar = read();
-      if (currentChar == -1) {
-         throw new EOFException();
-      }
-      if (currentChar != 'u') {
-         throwUnexpected(currentChar);
-      }
-      currentChar = read();
-      if (currentChar == -1) {
-         throw new EOFException();
-      }
-      if (currentChar != 'e') {
-         throwUnexpected(currentChar);
-      }
-      currentChar = read();
-      if (!isEndOfValue(currentChar)) {
-         throwUnexpected(currentChar);
-      }
-      this.recentChar = currentChar;
+      expect('r');
+      expect('u');
+      expect('e');
+      this.recentChar = expectEndOfValue();
+
       return Boolean.TRUE;
    }
-
    /****************************************************************************
     * 
     ***************************************************************************/
    private Boolean parseFalse() throws IOException {
 
-      int currentChar = read();
-      if (currentChar == -1) {
-         throw new EOFException();
-      }
-      if (currentChar != 'a') {
-         throwUnexpected(currentChar);
-      }
-      currentChar = read();
-      if (currentChar == -1) {
-         throw new EOFException();
-      }
-      if (currentChar != 'l') {
-         throwUnexpected(currentChar);
-      }
-      currentChar = read();
-      if (currentChar == -1) {
-         throw new EOFException();
-      }
-      if (currentChar != 's') {
-         throwUnexpected(currentChar);
-      }
-      currentChar = read();
-      if (currentChar == -1) {
-         throw new EOFException();
-      }
-      if (currentChar != 'e') {
-         throwUnexpected(currentChar);
-      }
-      currentChar = read();
-      if (!isEndOfValue(currentChar)) {
-         throwUnexpected(currentChar);
-      }
-      this.recentChar = currentChar;
+      expect('a');
+      expect('l');
+      expect('s');
+      expect('e');
+      this.recentChar = expectEndOfValue();
+
       return Boolean.FALSE;
    }
 
@@ -259,32 +233,11 @@ public final class Parser {
     ***************************************************************************/
    private Object parseNull() throws IOException {
 
-      int currentChar = read();
-      if (currentChar == -1) {
-         throw new EOFException();
-      }
-      if (currentChar != 'u') {
-         throwUnexpected(currentChar);
-      }
-      currentChar = read();
-      if (currentChar == -1) {
-         throw new EOFException();
-      }
-      if (currentChar != 'l') {
-         throwUnexpected(currentChar);
-      }
-      currentChar = read();
-      if (currentChar == -1) {
-         throw new EOFException();
-      }
-      if (currentChar != 'l') {
-         throwUnexpected(currentChar);
-      }
-      currentChar = read();
-      if (!isEndOfValue(currentChar)) {
-         throwUnexpected(currentChar);
-      }
-      this.recentChar = currentChar;
+      expect('u');
+      expect('l');
+      expect('l');
+      this.recentChar = expectEndOfValue();
+
       return null;
    }
 
