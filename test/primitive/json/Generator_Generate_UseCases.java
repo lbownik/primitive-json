@@ -88,8 +88,8 @@ public class Generator_Generate_UseCases extends Generator_UseCasesBase {
       assertMapEquals("{\"a\":0.0}", asMap("a", 0.0));
       assertMapEquals("{\"a\":1.0}", asMap("a", 1.0));
       assertMapEquals("{\"a\":-1.0}", asMap("a", -1.0));
-//      assertMapEquals("{\"a\":-123.45600000000000}", asMap("a", -123.456));
-//      assertMapEquals("{\"a\":456.12345678901234}", asMap("a", 456.123456789012345));
+      assertMapEquals("{\"a\":-123.45600000000000}", asMap("a", -123.456));
+      assertMapEquals("{\"a\":456.12345678901232}", asMap("a", 456.123456789012345)); //the last digit does not fit - ok
       assertMapEquals("{\"a\":0}", asMap("a", 0));
       assertMapEquals("{\"a\":[]}", asMap("a", new ArrayList()));
       assertMapEquals("{\"a\":{}}", asMap("a", new HashMap()));
@@ -119,6 +119,8 @@ public class Generator_Generate_UseCases extends Generator_UseCasesBase {
       assertListEquals("[\"ab\\\"c\"]", asList("ab\"c"));
       assertListEquals("[\"\\\\\"]", asList("\\"));
       assertListEquals("[\"\\b\\f\\n\\r\\t\\/\"]", asList("\b\f\n\r\t/"));
+      assertListEquals("[\"ąćśźżł\"]", asList("ąćśźżł"));
+      assertListEquals("[\"\u0000\u0002\"]", asList("\u0000\u0002"));
       assertListEquals("[1]", asList(1));
       assertListEquals("[1]", asList((long)1));
       assertListEquals("[1]", asList((short)1));

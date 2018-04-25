@@ -16,8 +16,6 @@
 package primitive.json;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -106,7 +104,7 @@ public final class Generator {
     * @throws IOException if output error occurs.
     * @throws NullPointerException if value or out == null.
     ***************************************************************************/
-   public void write(final List value, final Appendable out)
+   public void write(final List<?> value, final Appendable out)
            throws IOException {
 
       if (value == null) {
@@ -131,7 +129,7 @@ public final class Generator {
     * @return JSON string.
     * @throws NullPointerException if value == null.
     ***************************************************************************/
-   public String toString(final List value) {
+   public String toString(final List<?> value) {
 
       try {
          final Appendable wr = new StringBuilder(16);
@@ -185,7 +183,7 @@ public final class Generator {
     * @return JSON string.
     * @throws NullPointerException if value == null.
     ***************************************************************************/
-   public String toString(final Map value) {
+   public String toString(final Map<?,?> value) {
 
       try {
          final Appendable wr = new StringBuilder(16);
@@ -206,7 +204,7 @@ public final class Generator {
          out.append("null");
          return;
       }
-      final Class cls = value.getClass();
+      final Class<?> cls = value.getClass();
       if (cls == Double.class) {
          final Double d = (Double) value;
          if (d.isInfinite() | d.isNaN()) {
@@ -225,24 +223,12 @@ public final class Generator {
          }
          return;
       }
-      if (cls == Byte.class) {
-         write(((Byte) value).byteValue(), out);
-         return;
-      }
-      if (cls == Short.class) {
-         write(((Short) value).shortValue(), out);
-         return;
-      }
-      if (cls == Integer.class) {
-         write(((Integer) value).intValue(), out);
-         return;
-      }
-      if (cls == Long.class) {
-         write(((Long) value).longValue(), out);
+      if (Number.class.isInstance(value)) {
+         write(((Number) value).longValue(), out);
          return;
       }
       if (cls == Boolean.class) {
-         out.append(((Boolean) value).toString());
+         out.append(value.toString());
          return;
       }
       if (Map.class.isInstance(value)) {
@@ -301,20 +287,7 @@ public final class Generator {
                out.append('/');
                break;
             default:
-               //Reference: http://www.unicode.org/versions/Unicode5.1.0/
-               if ((ch >= '\u0000' && ch <= '\u001F')
-                       || (ch >= '\u007F' && ch <= '\u009F')
-                       || (ch >= '\u2000' && ch <= '\u20FF')) {
-                  final String ss = Integer.toHexString(ch);
-                  out.append('\\');
-                  out.append('u');
-                  for (int k = 0; k < 4 - ss.length(); k++) {
-                     out.append('0');
-                  }
-                  out.append(ss.toUpperCase());
-               } else {
-                  out.append(ch);
-               }
+               out.append(ch);
          }
       }//for
    }
@@ -341,7 +314,7 @@ public final class Generator {
          value /= 10;
       }
       while (index > 0) {
-         out.append((char)buf[--index]);
+         out.append((char) buf[--index]);
       }
    }
 
@@ -363,7 +336,7 @@ public final class Generator {
       }
       for (int i = 0; i < 14; i++) {
          decimal *= 10.0;
-         out.append((char)('0' + (int) decimal));
+         out.append((char) ('0' + (int) decimal));
          decimal -= (int) decimal;
       }
    }

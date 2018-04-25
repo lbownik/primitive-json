@@ -106,8 +106,6 @@ public final class Parser {
                return parseObject();
             case '[':
                return parseArray();
-            case -1:
-               throw new EOFException();
             default:
                throwUnexpected(currentChar);
                return null;
@@ -171,8 +169,6 @@ public final class Parser {
             return parseNumber(currentChar);
          case '"':
             return parseString();
-         case -1:
-            throw new EOFException();
          default:
             throwUnexpected(currentChar);
             return null;
@@ -247,50 +243,26 @@ public final class Parser {
    private HashMap<String, Object> parseObject() throws IOException {
 
       final HashMap<String, Object> result = new HashMap<>(this.initialHashtableSize);
+
       int currentChar = consumeWhitespace(read());
-      if (currentChar == -1) {
-         throw new EOFException();
-      }
-      if (currentChar != '}') {
-         loop:
-         for (;;) {
-            if (currentChar != '"') {
-               throwUnexpected(currentChar);
-            }
-            final String key = parseString();
-            currentChar = consumeWhitespace(this.recentChar);
-            if (currentChar == -1) {
-               throw new EOFException();
-            }
-            if (currentChar != ':') {
-               throwUnexpected(currentChar);
-            }
-            currentChar = read();
-            currentChar = consumeWhitespace(currentChar);
-            if (currentChar == -1) {
-               throw new EOFException();
-            }
-            if (result.put(key, parseValue(currentChar)) != null) {
-               throw new DuplicatedKeyException(key);
-            }
-            currentChar = consumeWhitespace(this.recentChar);
-            switch (currentChar) {
-               case -1:
-                  throw new EOFException();
-               case ',':
-                  currentChar = read();
-                  currentChar = consumeWhitespace(currentChar);
-                  if (currentChar == -1) {
-                     throw new EOFException();
-                  }
-                  break;
-               case '}':
-                  break loop;
-               default:
-                  throwUnexpected(currentChar);
-            }
+      while (currentChar != '}') {
+         if (currentChar != '"') {
+            throwUnexpected(currentChar);
          }
-      }
+         final String key = parseString();
+         currentChar = consumeWhitespace(this.recentChar);
+         if (currentChar != ':') {
+            throwUnexpected(currentChar);
+         }
+         currentChar = consumeWhitespace(read());
+         if (result.put(key, parseValue(currentChar)) != null) {
+            throw new DuplicatedKeyException(key);
+         }
+         currentChar = consumeWhitespace(this.recentChar);
+         if (currentChar == ',') {
+            currentChar = consumeWhitespace(read());
+         }
+      } 
       return result;
    }
 
@@ -302,28 +274,17 @@ public final class Parser {
       final ArrayList<Object> result = new ArrayList<>(this.initialVectorSize);
 
       int currentChar = consumeWhitespace(read());
-      if (currentChar == -1) {
-         throw new EOFException();
-      }
       if (currentChar != ']') {
-         loop:
-         for (;;) {
-            currentChar = consumeWhitespace(currentChar);
-            result.add(parseValue(currentChar));
-            currentChar = this.recentChar;
-            currentChar = consumeWhitespace(currentChar);
-            switch (currentChar) {
-               case -1:
-                  throw new EOFException();
-               case ',':
-                  currentChar = read();
-                  currentChar = consumeWhitespace(currentChar);
-                  break;
-               case ']':
-                  break loop;
-               default:
-                  throwUnexpected(currentChar);
+         result.add(parseValue(currentChar));
+         currentChar = consumeWhitespace(this.recentChar);
+         while(currentChar != ']') {
+            if (currentChar == ',') {
+               currentChar = consumeWhitespace(read());
+            } else {
+               throwUnexpected(currentChar);
             }
+            result.add(parseValue(currentChar));
+            currentChar = consumeWhitespace(this.recentChar);
          }
       }
       return result;
@@ -356,9 +317,8 @@ public final class Parser {
       if (isEndOfValue(currentChar)) {
          // integer - no exponent
          this.recentChar = currentChar;
-         return new Long(integer * signum);
-      }
-      if (currentChar == '.') {
+         return integer * signum;
+      } else if (currentChar == '.') {
          // floating point
          currentChar = read();
          if (currentChar == -1) {
@@ -401,9 +361,9 @@ public final class Parser {
             if (isEndOfValue(currentChar)) {
                this.recentChar = currentChar;
                if (expSignum > 0) {
-                  return new Double((integer + decimal) * signum * pow(exponent));
+                  return (integer + decimal) * signum * pow(exponent);
                } else {
-                  return new Double((integer + decimal) * signum / pow(exponent));
+                  return (integer + decimal) * signum / pow(exponent);
                }
             }
             throwUnexpected(currentChar);
@@ -411,12 +371,11 @@ public final class Parser {
             // floating point without exponent
             if (isEndOfValue(currentChar)) {
                this.recentChar = currentChar;
-               return new Double((integer + decimal) * signum);
+               return (integer + decimal) * signum;
             }
             throwUnexpected(currentChar);
          }
-      }
-      if (currentChar == 'e' | currentChar == 'E') {
+      } else if (currentChar == 'e' | currentChar == 'E') {
          // integer or float with exponent
          currentChar = read();
          int expSignum = 1;
@@ -443,18 +402,16 @@ public final class Parser {
          if (isEndOfValue(currentChar)) {
             this.recentChar = currentChar;
             if (expSignum > 0) {
-               return new Long(integer * pow(exponent) * signum);
+               return integer * pow(exponent) * signum;
             } else {
                if (exponent == 0) {
-                  return new Long(integer * signum);
+                  return integer * signum;
                } else {
-                  return new Double(integer * 1.0 / pow(exponent) * signum);
+                  return integer * 1.0 / pow(exponent) * signum;
                }
             }
          }
-         throwUnexpected(currentChar);
       }
-      throwUnexpected(currentChar);
       return null;
    }
 
@@ -498,14 +455,8 @@ public final class Parser {
                break;
          }
       }
-      currentChar = read();
-      if (!isEndOfValue(currentChar)) {
-         throwUnexpected(currentChar);
-      }
-
-      this.recentChar = currentChar;
-      return this.bufIndex > 0 ? new String(this.buffer,
-              0, this.bufIndex) : "";
+      this.recentChar = read();
+      return this.bufIndex > 0 ? new String(this.buffer, 0, this.bufIndex) : "";
    }
    /****************************************************************************
     * 
@@ -593,6 +544,9 @@ public final class Parser {
       while (chr == ' ' | chr == '\b' | chr == '\f' | chr == '\n' | chr == '\r'
               | chr == '\t') {
          chr = read();
+      }
+      if (chr == -1) {
+         throw new EOFException();
       }
       return chr;
    }

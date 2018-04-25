@@ -669,6 +669,8 @@ public class Parser_Parse_UseCases extends Parser_UseCasesBase {
       assertUnexpected("{abc}", 'a');
       assertUnexpected("{\"abc\"}", '}');
       assertUnexpected("{\"abc\": }", '}');
+      assertUnexpected("{\"abc\"x", 'x');
+      assertUnexpected("{\"abc\": x", 'x');
       assertUnexpected("{\"abc\",,\"abc\"}", ',');
       assertUnexpected("{\"abc\", ,\"abc\"}", ',');
       assertUnexpected("{\"abc\" \"abc\"}", '\"');
