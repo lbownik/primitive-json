@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.ArrayList;
+import static java.util.Arrays.copyOf;
 
 /*******************************************************************************
  * JSON parser. This class is not thread safe but can be reused for parsing 
@@ -262,7 +263,7 @@ public final class Parser {
          if (currentChar == ',') {
             currentChar = consumeWhitespace(read());
          }
-      } 
+      }
       return result;
    }
 
@@ -277,7 +278,7 @@ public final class Parser {
       if (currentChar != ']') {
          result.add(parseValue(currentChar));
          currentChar = consumeWhitespace(this.recentChar);
-         while(currentChar != ']') {
+         while (currentChar != ']') {
             if (currentChar == ',') {
                currentChar = consumeWhitespace(read());
             } else {
@@ -567,9 +568,7 @@ public final class Parser {
 
       if (this.bufIndex == this.bufferSize) {
          this.bufferSize *= 2;
-         final char[] newBuffer = new char[this.bufferSize];
-         System.arraycopy(this.buffer, 0, newBuffer, 0, this.buffer.length);
-         this.buffer = newBuffer;
+         this.buffer = copyOf(this.buffer, this.bufferSize);
       }
       this.buffer[this.bufIndex++] = chr;
    }
