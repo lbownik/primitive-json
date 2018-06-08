@@ -107,11 +107,9 @@ public final class Generator {
    public void write(final List<?> value, final Appendable out)
            throws IOException {
 
-      if (value == null) {
-         throw new NullPointerException("value");
-      }
-      out.append('[');
       final int lastIndex = value.size() - 1;
+      
+      out.append('[');
       if (lastIndex > -1) {
          for (int i = 0; i < lastIndex; ++i) {
             writeValue(value.get(i), out);
@@ -151,11 +149,9 @@ public final class Generator {
    public void write(final Map value, final Appendable out)
            throws IOException {
 
-      if (value == null) {
-         throw new NullPointerException("value");
-      }
-      out.append('{');
       final Iterator<Map.Entry> entries = value.entrySet().iterator();
+      
+      out.append('{');
       if (entries.hasNext()) {
          final Map.Entry entry = entries.next();
          out.append('\"');

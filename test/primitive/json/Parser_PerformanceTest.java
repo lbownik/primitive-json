@@ -31,11 +31,10 @@ public class Parser_PerformanceTest {
       System.out.println("PERFORMANCE TESTS");
       System.out.println("Number of iterations per test:" + iterations/1000000 + "M");
       System.out.println("-----------------------------------------------");
-//      test("Mixed", defaultJson);
-//      test("Array of \"\"", emptyStringsJson);
-//      test("Array of strings", arrayOfStrings);
-//      test("Array of numbers", arrayOfNumbers);
-//      test("Array of nulls", arrayOfNumbers);
+      test("Mixed", defaultJson);
+      test("Array of \"\"", emptyStringsJson);
+      test("Array of strings", arrayOfStrings);
+      test("Array of numbers", arrayOfNumbers);
       test("Array of nulls", arrayOfNulls);
    }
 
