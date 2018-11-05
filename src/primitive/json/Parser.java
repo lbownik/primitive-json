@@ -67,7 +67,7 @@ public final class Parser {
     * @throws java.lang.IllegalArgumentException if initialBufferSize <= 0.
     ***************************************************************************/
    public Parser(final int initialBufferSize, final int initialHashtableSize,
-           final int initialVectorSize) {
+         final int initialVectorSize) {
 
       if (initialBufferSize <= 0) {
          throw new IllegalArgumentException("initialBufferSize <= 0");
@@ -543,7 +543,7 @@ public final class Parser {
    private int consumeWhitespace(int chr) throws IOException {
 
       while (chr == ' ' | chr == '\b' | chr == '\f' | chr == '\n' | chr == '\r'
-              | chr == '\t') {
+            | chr == '\t') {
          chr = read();
       }
       if (chr == -1) {
@@ -558,7 +558,7 @@ public final class Parser {
    private static boolean isEndOfValue(final int chr) {
 
       return chr == -1 | chr == ' ' | chr == '\t' | chr == '\n' | chr == '\r'
-              | chr == ']' | chr == '}' | chr == ',' | chr == ':';
+            | chr == ']' | chr == '}' | chr == ',' | chr == ':';
    }
 
    /****************************************************************************
@@ -594,4 +594,93 @@ public final class Parser {
 
    private final int initialVectorSize;
    private final int initialHashtableSize;
+   /****************************************************************************
+    * An exception thrown when parser encounters duplicated JSON object keys.
+    * @author lukasz.bownik@gmail.com
+    ***************************************************************************/
+   public final static class DuplicatedKeyException extends IOException {
+
+      /*************************************************************************
+       * @param key duplicated key.
+       ************************************************************************/
+      DuplicatedKeyException(final String key) {
+
+         super("Duplicated key: ".concat(key));
+         this.key = key;
+      }
+      /*************************************************************************
+       * 
+       ************************************************************************/
+      /** Duplicated key.*/
+      public final String key;
+   }
+   /****************************************************************************
+    * An exception thrown when parser encounters malformed JSON syntax.
+    * @author lukasz.bownik@gmail.com
+    ***************************************************************************/
+   public final static class UnexpectedCharacterException extends IOException {
+
+      /*************************************************************************
+       * 
+       * @param position posision of unexpected character.
+       * @param character unexpected character value (zero based).
+       ************************************************************************/
+      UnexpectedCharacterException(final int position, final char character) {
+
+         super("Unexpected character '" + character + "' at position " + position + ".");
+         this.position = position;
+         this.character = character;
+      }
+      /*************************************************************************
+       * 
+       ************************************************************************/
+      /** Unexpected character value.*/
+      public final char character;
+      /** Position of unexpected character (zero based).*/
+      public final int position;
+   }
+   /****************************************************************************
+    * 
+    ***************************************************************************/
+   private final static class StringReader extends Reader {
+
+      /*************************************************************************
+       * 
+       ************************************************************************/
+      StringReader(final String s) {
+
+         this.s = s;
+         this.length = s.length();
+      }
+
+      /*************************************************************************
+       * 
+       ************************************************************************/
+      public int read() throws IOException {
+
+         return this.pos < this.length ? this.s.charAt(this.pos++) : -1;
+      }
+
+      /*************************************************************************
+       * 
+       ************************************************************************/
+      public int read(final char[] cbuf, int off, final int len)
+            throws IOException {
+
+         return -1; // not implemented
+      }
+
+      /*************************************************************************
+       * 
+       ************************************************************************/
+      public void close() throws IOException {
+      }
+
+      /*************************************************************************
+       * 
+       ************************************************************************/
+      private final String s;
+      private int pos = 0;
+      private final int length;
+   }
 }

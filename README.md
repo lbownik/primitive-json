@@ -1,16 +1,15 @@
-#A simple, lightweight, CLDC 1.1 compliant JSON parser/generator.
+#A simple, lightweight, JSON parser/generator.
 
 The library represents JSON as
-* 	java.util.Hashtable,
-* 	java.util.Vector,
+* 	java.util.HashMap,
+* 	java.util.ArrayList,
 * 	java.lang.String,
 * 	java.lang.Long,
 * 	java.lang.Double,   
 * 	java.lang.Boolean,
-* 	org.json.primitive.Null.value (cause Hashtable does not support null values).
+* 	null
 
+Just include Parser.java or Generator.java into Your project and use 
+`new Parser().parse(...)` or `new Ganaretor().generate(...)`.
 
-Just use `new Parser().parse(...)` or `new Ganaretor().generate(...)`.
-
-You can download JAR from <a href="https://drive.google.com/file/d/0B4pyOjYhl3mecG9wOVEtVWFndnc/edit?usp=sharing">here</a>, and javadoc from 
-<a href="https://drive.google.com/file/d/0B4pyOjYhl3meLWtQZXpQMWxtX2M/edit?usp=sharing">here</a>.
+The library is optimized to avoid unnecessary object allocation.

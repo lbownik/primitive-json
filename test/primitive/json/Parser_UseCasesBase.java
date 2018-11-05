@@ -38,7 +38,7 @@ public abstract class Parser_UseCasesBase {
       try {
          Object result = parse(str);
          fail("Unexpected character failed. Result: ".concat(result.toString()));
-      } catch (final UnexpectedCharacterException e) {
+      } catch (final Parser.UnexpectedCharacterException e) {
          assertEquals(unexpectedChar, e.character);
       }
    }

@@ -650,7 +650,7 @@ public class Parser_Parse_UseCases extends Parser_UseCasesBase {
       try {
          parse("{\"a\":1,\"a\":2}");
          fail();
-      } catch (final DuplicatedKeyException e) {
+      } catch (final Parser.DuplicatedKeyException e) {
          assertEquals("a", e.key);
       }
    }
