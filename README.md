@@ -9,7 +9,8 @@ The library represents JSON as
 * 	java.lang.Boolean,
 * 	null
 
-Just include Parser.java or Generator.java into Your project and use 
-`new Parser().parse(...)` or `new Ganaretor().generate(...)`.
+Just include [Parser.java](https://github.com/lbownik/primitive-json/blob/master/src/primitive/json/Parser.java) 
+or [Generator.java](https://github.com/lbownik/primitive-json/blob/master/src/primitive/json/Generator.java) 
+into Your project and use `new Parser().parse(...)` or `new Ganaretor().generate(...)`.
 
 The library is optimized to avoid unnecessary object allocation.
