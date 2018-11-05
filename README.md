@@ -1,4 +1,4 @@
-#A simple, lightweight, JSON parser/generator.
+# A minimalistic JSON parser and generator.
 
 The library represents JSON as
 * 	java.util.HashMap,
