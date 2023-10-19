@@ -39,6 +39,7 @@ import java.util.Map;
  *   <li>org.json.primitive.Null,</li>
  *   <li>objects of any other class (converted to string using toString method)</li>
  *   </ul>
+ * @see https://github.com/lbownik/primitive-json
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
 public final class Generator {
