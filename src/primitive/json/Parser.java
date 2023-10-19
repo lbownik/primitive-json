@@ -35,6 +35,7 @@ import static java.util.Arrays.copyOf;
  *   <li>java.lang.Boolean,</li>
  *   <li>null</li>
  *   </ul>
+ * @see https://github.com/lbownik/primitive-json
  * @author lukasz.bownik@gmail.com
  ******************************************************************************/
 public final class Parser {
